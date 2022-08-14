@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MyAccessibilityService</string>
+    <string name="accessibility_service_label">My Accesibility Service</string>
+    <string name="accessibility_service_description">Accessibility service description</string>
+    <string name="power">Power</string>
+    <string name="volume">Volume</string>
+    <string name="scroll">Scroll</string>
+    <string name="swipe">Swipe</string>
+</resources>

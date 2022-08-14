@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import sys
+
+from v2s.pipeline import PipelineV2S
+from v2s.util.general import JSONFileUtils
+
+# Specify arguments for the configuration to use
+parser = argparse.ArgumentParser()
+parser.add_argument("--config", help="Path to v2s configuration file.")
+args = parser.parse_args()
+
+if not args.config:
+    # default v2s config file
+    config = os.path.join(sys.prefix, 'v2s', 'v2s_config.json')
+else:
+    config = args.config
+
+# get access to the config file
+config = JSONFileUtils.read_data_from_json(config)
+scenarios = config["scenarios"]
+adb = config["packages"]["adb_path"]
+# consider each 
+for scen_config in scenarios:
+    # create new pipeline for that video and execute V2S pipeline
+    v2s = PipelineV2S(adb, scen_config)
+    v2s.execute()
