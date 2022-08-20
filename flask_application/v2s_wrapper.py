@@ -18,8 +18,8 @@ def execute_v2s(filepath):
     # this is the path to use ssd model instead of faster rcnn, replace line 13 with the line below
     # "touch_model": "v2s/phase1/detection/touch_model/my_model/saved_model/",
 
-    # v2s = PipelineV2S(scene_config)
-    # v2s.execute()
+    v2s = PipelineV2S(scene_config)
+    v2s.execute()
     name, extension = os.path.splitext(filepath)
     detected_actions_path =  name + '/detected_actions.json'
     detected_actions = open(detected_actions_path, 'r')
