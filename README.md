@@ -14,6 +14,7 @@ Once complete, the user will be able to enable the shortcut and rerun the action
 The device loops through the json file and executes the action type at the specific location. After each action execution, the device checks the similatrity of the device screen and the video frame and if the similarity percent is below 90, it will try and rerun the previous action execution. After three tries, an 'action hint' will appear on the screen to prompt the user to click the right button/location. 
 
 ## Pre-requisites
+
 ### Model Links
 Unable to store models on github repo due to size limitations. Please download the below files and place them in the correct folders. 
 Link to Models: https://drive.google.com/drive/folders/1Hvd3IYrseYh7yO4uVlOu2qgHnuw1NZGc?usp=sharing
@@ -28,6 +29,23 @@ Touch Model | saved_model.pb | ```pythonv2s/v2s/phase1/detection/touch_model/sav
 Touch Model | saved_model.pb | ```pythonv2s/v2s/phase1/detection/touch_model/saved_model_n7/``` | 
 
 ### Environment
+1. Ceate a conda environment with python
+2. Run ```cd to \BackendWithV2S\python_v2s``
+3. Run ```pip install .``` or manually install the following list of requirements 
+    - 'ffmpeg',
+    - 'ffmpeg-python',
+    - 'Keras==2.2.4',
+    - 'Keras-Applications==1.0.8',
+    - 'Keras-Preprocessing==1.1.0',
+    - 'matplotlib==3.1.1',
+    - 'numpy>=1.20.2',
+    - 'Pillow==6.2.0',
+    - 'scipy==1.3.1',
+    - 'tensorboard>=2.0.0',
+    - 'tensorflow>=2.0.0',
+    - 'tensorflow-mac-os' (only install if you run a MacOS device)
+4. Run ```cd to \BackendWithV2S\flask_application```
+5. Run ```pip install -r requirements.txt```
 
 ### Docker
 Needed for redis, which is a database then can save our result. Create and start an image of the backend. 
