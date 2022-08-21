@@ -76,9 +76,24 @@ class Phase1V2S(AbstractPhase):
             os.mkdir(cur_dir_path)
 
         logging.basicConfig(filename=os.path.join(cur_dir_path, 'v2s.log'), filemode='w', level=logging.INFO)
-        
 
-        
+         # 1) Execute frame extraction      
+        self.frame_extractor.set_video_path(cur_path)
+        self.frame_extractor.execute()
+
+        # 2) Execute touch detection
+        # get the proper model
+        touch_model = os.path.join(sys.prefix, self.config["touch_model"])
+        self.touch_detector.set_video_path(cur_path)
+        self.touch_detector.set_model_path(touch_model)
+        labelmap = os.path.join(sys.prefix, self.config["labelmap"])
+        self.touch_detector.set_labelmap_path(labelmap)
+        self.touch_detector.execute_detection()
+        # incomplete detections - without opacity information
+        incomplete_detections = self.touch_detector.get_touch_detections()
+
+        JSONFileUtils.output_data_to_json(incomplete_detections, os.path.join(cur_dir_path, "incomplete_detections.json"))
+
         # # 3) Execute opacity detection
         # # get the proper opacity model
         # opacity_model = CURRPATH + self.config["opacity_model"]
