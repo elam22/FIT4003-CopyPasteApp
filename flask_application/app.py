@@ -1,9 +1,11 @@
 import os
+import timeit
 
 from flask import Flask, flash, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 from celery import Celery
 from v2s_wrapper import execute_v2s
+from v2s.util.general import JSONFileUtils
 from result_processing import *
 
 UPLOAD_FOLDER = os.getcwd().strip('flask_application') + 'uploads'
@@ -23,6 +25,7 @@ celery = Celery(app.name,
 def process_video(self, filepath):
     self.update_state(state='PROCESSING')
 
+    start = timeit.default_timer()
     detected_actions_json = execute_v2s(filepath)
     extracted_actions = extract_action(detected_actions_json)
 
@@ -66,8 +69,14 @@ def process_video(self, filepath):
         extracted_actions[i]['resulting_screen_ocr'] = ocr(screen_path)
 
     # self.update_state(result=extracted_actions)
+    JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
 
+    duration = timeit.default_timer() - start
+    # self.update_state(result=extracted_actions)
+    JSONFileUtils.output_data_to_json({"duartion": duration}, os.path.join(filepath.rsplit(".", 1)[0], "duration.json"))
+    JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
     return extracted_actions
+
 
 
 def allowed_file(filename):
@@ -90,6 +99,7 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            print(filepath)
             file.save(filepath)
             task = process_video.apply_async(args=[filepath])
             return jsonify(202, {'Location': url_for('task_status', task_id=task.id)})
@@ -126,7 +136,6 @@ def task_status(task_id):
             'state': task.state,
             'status': str(task.info),  # this is the exception raised
         }
-    return jsonify(response)
 
 
 if __name__ == '__main__':

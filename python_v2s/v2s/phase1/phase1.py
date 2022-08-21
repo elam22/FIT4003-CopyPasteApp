@@ -11,7 +11,6 @@ from v2s.phase1.detection.touch_detection import TouchDetectorFRCNN
 from v2s.phase1.video_manipulation.video_manipulation import FrameExtractor
 from v2s.util.general import JSONFileUtils
 
-CURRPATH = os.getcwd().strip('flask_application') + 'python_v2s/v2s/'
 
 class Phase1V2S(AbstractPhase):
     """
@@ -78,49 +77,33 @@ class Phase1V2S(AbstractPhase):
 
         logging.basicConfig(filename=os.path.join(cur_dir_path, 'v2s.log'), filemode='w', level=logging.INFO)
         
-        # 1) Execute frame extraction      
-        self.frame_extractor.set_video_path(cur_path)
-        self.frame_extractor.execute()
 
-        # 2) Execute touch detection
-        # get the proper model
-
-        touch_model =  CURRPATH + self.config["touch_model"]
-        self.touch_detector.set_video_path(cur_path)
-        self.touch_detector.set_model_path(touch_model)
-        labelmap = CURRPATH + self.config["labelmap"]
-        self.touch_detector.set_labelmap_path(labelmap)
-        self.touch_detector.execute_detection()
-        # incomplete detections - without opacity information
-        incomplete_detections = self.touch_detector.get_touch_detections()
-
-        JSONFileUtils.output_data_to_json(incomplete_detections, os.path.join(cur_dir_path, "incomplete_detections.json"))
         
-        # 3) Execute opacity detection
-        # get the proper opacity model
-        opacity_model = CURRPATH + self.config["opacity_model"]
+        # # 3) Execute opacity detection
+        # # get the proper opacity model
+        # opacity_model = CURRPATH + self.config["opacity_model"]
 
-        self.opacity_detector.set_video_path(cur_path)
-        self.opacity_detector.set_model_path(opacity_model)
-        self.opacity_detector.set_frames(incomplete_detections)
-        # get the touch indicator size
-        device_model = self.config["device_model"]
-        device_path = CURRPATH + 'device_config.json'
-        # device_path = "/Users/em.ily/Documents/GitHub/video2scenario/python_v2s/v2s/device_config.json"
-        device_file = open(device_path, 'r') 
-        device_specs = json.load(device_file)[device_model]
-        touch_indicator = device_specs["indicator_size"]
-        self.opacity_detector.set_indicator_size(round(touch_indicator*0.8))
-        self.opacity_detector.execute_detection()
-        predictions = self.opacity_detector.get_opacity_predictions()
-        self.detections = self.add_opacity_to_detections(predictions, 
-                                                         incomplete_detections,
-                                                         cur_path)
+        # self.opacity_detector.set_video_path(cur_path)
+        # self.opacity_detector.set_model_path(opacity_model)
+        # self.opacity_detector.set_frames(incomplete_detections)
+        # # get the touch indicator size
+        # device_model = self.config["device_model"]
+        # device_path = CURRPATH + 'device_config.json'
+        # # device_path = "/Users/em.ily/Documents/GitHub/video2scenario/python_v2s/v2s/device_config.json"
+        # device_file = open(device_path, 'r') 
+        # device_specs = json.load(device_file)[device_model]
+        # touch_indicator = device_specs["indicator_size"]
+        # self.opacity_detector.set_indicator_size(round(touch_indicator*0.8))
+        # self.opacity_detector.execute_detection()
+        # predictions = self.opacity_detector.get_opacity_predictions()
+        # self.detections = self.add_opacity_to_detections(predictions, 
+        #                                                  incomplete_detections,
+        #                                                  cur_path)
 
-        # 4) Write these detections to json file
-        # navigate to file pertaining to video being analyzed
-        json_path = os.path.join(cur_dir_path, "detection_full.json")
-        JSONFileUtils.output_data_to_json(self.detections, json_path)
+        # # 4) Write these detections to json file
+        # # navigate to file pertaining to video being analyzed
+        # json_path = os.path.join(cur_dir_path, "detection_full.json")
+        # JSONFileUtils.output_data_to_json(self.detections, json_path)
 
     def add_opacity_to_detections(self, predictions, incomplete, cur_vid):
         """

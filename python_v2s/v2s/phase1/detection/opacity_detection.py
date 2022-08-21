@@ -155,9 +155,9 @@ class OpacityDetectorALEXNET(AbstractOpacityDetector):
         """
         self.__crop_and_compile_images()
         # get the images in the cropped folder
-        logging.info("Detecting opacity value for video : " + 
+        logging.info("Detecting opacity value for video : " +
                                              os.path.basename(self.video_path))
-        img_list = [img for img in os.listdir(self.cropped_path) if 
+        img_list = [img for img in os.listdir(self.cropped_path) if
                                             os.path.splitext(img)[1] == ".jpg"]
         # sort image list so we know the order of the predictions
         img_list.sort()
@@ -171,7 +171,7 @@ class OpacityDetectorALEXNET(AbstractOpacityDetector):
             # Normalization
             temp_image_np = temp_image_np.reshape((1,) + temp_image_np.shape) / 255
             images.append(temp_image_np)
-        
+
         # resize all images together to get ready to pass into model
         images = np.array(images).reshape(len(images), self.size, self.size, 3)
         # load model
@@ -180,6 +180,7 @@ class OpacityDetectorALEXNET(AbstractOpacityDetector):
         # set attribute opacity_predictions
         predictions = self.keras_model.predict(images)
         self.set_opacity_predictions(predictions)
+
     
     def __crop_and_compile_images(self):
         """
@@ -322,7 +323,7 @@ class OpacityDetectorALEXNET(AbstractOpacityDetector):
             path to cropped images
         """
         return self.cropped_path
-    
+
     def set_cropped_path(self, path):
         """
         Changes cropped path to specified value.
@@ -333,7 +334,6 @@ class OpacityDetectorALEXNET(AbstractOpacityDetector):
             new cropped path
         """
         self.cropped_path = path
-        logging.info(self.cropped_path)
 
     def get_model_path(self):
         """
@@ -356,3 +356,5 @@ class OpacityDetectorALEXNET(AbstractOpacityDetector):
             new model path
         """
         self.model_path = path
+
+

@@ -72,6 +72,23 @@ def google_ocr_make_image_data(img_path):
     return json.dumps({"requests": img_req}).encode()
 
 
+
+def google_ocr_make_image_data(img_path):
+    with open(img_path, 'rb') as f:
+        ctxt = b64encode(f.read()).decode()
+        img_req = {
+            'image': {
+                'content': ctxt
+            },
+            'features': [{
+                'type': 'DOCUMENT_TEXT_DETECTION',
+                # 'type': 'TEXT_DETECTION',
+                'maxResults': 1
+            }]
+        }
+    return json.dumps({"requests": img_req}).encode()
+
+
 def ocr_detection_google(img_path):
     url = 'https://vision.googleapis.com/v1/images:annotate'
     api_key = ''  # *** Replace with your own Key ***
@@ -106,7 +123,31 @@ def remove_symbol(string):
     return new_string
 
 
-def extract_action(detected_actions):
+def extract_action(incomplete_actions):
+    prev = incomplete_actions[0]
+    screenId = [prev["screenId"]]
+    taps = [prev["screenTap"][0]]
+    detected_actions = []
+    for action in incomplete_actions[1:]:
+        try:
+            if action["screenId"] - prev["screenId"] == 1:
+                screenId.append(action["screenId"])
+                taps.append(action["screenTap"][0])
+                prev = action
+            else:
+
+                together = {"act_type": getAction(taps), "frames": screenId, "taps": taps}
+                getAction(taps)
+                detected_actions.append(together)
+                prev = action
+                screenId = [action["screenId"]]
+                taps = [action["screenTap"][0]]
+        except NameError:
+            print("error")
+
+    getAction(taps)
+    together = {"act_type": getAction(taps), "frames": screenId, "taps": taps}
+    detected_actions.append(together)
     actions = []
     for detected_action in detected_actions:
         action = dict()
@@ -163,6 +204,28 @@ def get_action_hint(file_path, action_coordinate):
     text_bound_array = TextBoundArray(text_objects)
     return text_bound_array.find_nearest_text(action_coordinate)
 
+
+def getAction(taps):
+    n = len(taps)
+    x0 = taps[0]["x"]
+    y0 = taps[0]["y"]
+    x1 = taps[n // 2]["x"]
+    y1 = taps[n // 2]["y"]
+    x2 = taps[n - 2]["x"]
+    y2 = taps[n - 2]["y"]
+
+    if disBetweenPoint(x0, y0, x2, y2) > 5:
+        return "SWIPE"
+    else:
+        if n > 30:
+            return "LONG_CLICK"
+        else:
+            return "CLICK"
+
+
+def disBetweenPoint(x1, y1, x2, y2):
+    distance = math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
+    return distance
 
 if __name__ == "__main__":
     pass

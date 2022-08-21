@@ -21,7 +21,7 @@ def execute_v2s(filepath):
     v2s = PipelineV2S(scene_config)
     v2s.execute()
     name, extension = os.path.splitext(filepath)
-    detected_actions_path =  name + '/detected_actions.json'
+    detected_actions_path =  name + '/incomplete_detections.json'
     detected_actions = open(detected_actions_path, 'r')
     json_result = json.load(detected_actions)
     return json_result
