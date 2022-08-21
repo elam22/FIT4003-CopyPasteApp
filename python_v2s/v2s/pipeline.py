@@ -62,4 +62,4 @@ class PipelineV2S(Pipeline):
         super().__init__()
         # add appropriate phases for V2S to pipeline
         self.add_phase(Phase1V2S(config))
-        self.add_phase(Phase2V2S(config))
+        # self.add_phase(Phase2V2S(config))

@@ -99,7 +99,6 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            print(filepath)
             file.save(filepath)
             task = process_video.apply_async(args=[filepath])
             return jsonify(202, {'Location': url_for('task_status', task_id=task.id)})
@@ -136,6 +135,7 @@ def task_status(task_id):
             'state': task.state,
             'status': str(task.info),  # this is the exception raised
         }
+    return jsonify(response)
 
 
 if __name__ == '__main__':

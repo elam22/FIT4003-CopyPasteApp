@@ -11,6 +11,7 @@ from v2s.phase1.detection.touch_detection import TouchDetectorFRCNN
 from v2s.phase1.video_manipulation.video_manipulation import FrameExtractor
 from v2s.util.general import JSONFileUtils
 
+CURRPATH = os.getcwd().strip('flask_application') + 'python_v2s/v2s/'
 
 class Phase1V2S(AbstractPhase):
     """
@@ -43,7 +44,7 @@ class Phase1V2S(AbstractPhase):
     set_detections(list)
         Changes detections to specified value.
     """
-    
+
     def __init__(self, config):
         """
         Parameters
@@ -83,10 +84,10 @@ class Phase1V2S(AbstractPhase):
 
         # 2) Execute touch detection
         # get the proper model
-        touch_model = os.path.join(sys.prefix, self.config["touch_model"])
+        touch_model = CURRPATH + self.config["touch_model"]
         self.touch_detector.set_video_path(cur_path)
         self.touch_detector.set_model_path(touch_model)
-        labelmap = os.path.join(sys.prefix, self.config["labelmap"])
+        labelmap = CURRPATH + self.config["labelmap"]
         self.touch_detector.set_labelmap_path(labelmap)
         self.touch_detector.execute_detection()
         # incomplete detections - without opacity information
