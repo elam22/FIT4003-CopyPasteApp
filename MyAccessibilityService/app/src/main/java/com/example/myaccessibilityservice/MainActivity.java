@@ -1,9 +1,5 @@
 package com.example.myaccessibilityservice;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,7 +7,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -49,18 +44,16 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class MainActivity<IPV4> extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1;
     String selectedImagePath;
     int REQUEST_CODE = 3;
     EditText ipv4AddressView;
-    String ipv4AddressAndPort;
+    String ipv4AddressAndPort = "192.168.20.17:5000";
     RequestBody requestBody;
     String postUrl;
     String getUrl;
     TextView responseText;
-
-    String IPV4 = "192.168.20.17:5000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +61,8 @@ public class MainActivity<IPV4> extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ipv4AddressView = findViewById(R.id.IPAddress);
-        ipv4AddressAndPort = ipv4AddressView.getText().toString();
-
+//        ipv4AddressAndPort = ipv4AddressView.getText().toString();
+        responseText = findViewById(R.id.responseText);
         SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
         getUrl = sharedPref.getString("URL", null);
     }
@@ -184,7 +177,8 @@ public class MainActivity<IPV4> extends AppCompatActivity {
     }
 
     public void uploadVideo(View v) {
-        postUrl = "http://" + IPV4;
+        postUrl = "http://" + ipv4AddressAndPort + "/";
+
 //        RequestBody postBody = new FormBody.Builder().add("value","hello").build();
 //        postRequest(postUrl, postBody);
         if (selectedImagePath != null) {
@@ -223,7 +217,7 @@ public class MainActivity<IPV4> extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = findViewById(R.id.responseText);
+//                        TextView responseText = findViewById(R.id.responseText);
                         responseText.setText("Failed to Connect to Server");
                         Log.i("Upload", String.valueOf(e));
                     }
@@ -236,7 +230,7 @@ public class MainActivity<IPV4> extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = findViewById(R.id.responseText);
+//                        TextView responseText = findViewById(R.id.responseText);
                         try {
                             String responseData = response.body().string();
                             JSONArray json = new JSONArray(responseData);
@@ -246,7 +240,7 @@ public class MainActivity<IPV4> extends AppCompatActivity {
                                 responseTxt = "Successfully uploaded. Please wait the video to be process";
                                 statusId = json.getJSONObject(1);
                                 Log.i("Json", statusId.getString("Location"));
-                                getUrl = "http://" + IPV4 + "/" + statusId.getString("Location");
+                                getUrl = "http://" + ipv4AddressAndPort + "/" + statusId.getString("Location");
 
                                 // save to shared preferences
                                 SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
@@ -282,24 +276,25 @@ public class MainActivity<IPV4> extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setType("video/mp4");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        getResult.launch(intent);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 
-    ActivityResultLauncher<Intent> getResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Uri uri = result.getData().getData();
-                        selectedImagePath = getPath(getApplicationContext(), uri);
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent data) {
+        super.onActivityResult(reqCode, resCode, data);
+        Log.i("onActivityResult", "In");
+        if (resCode == RESULT_OK && data != null && reqCode == REQUEST_CODE) {
+            Log.i("onActivityResult", "Good");
+            Uri uri = data.getData();
+//            selectedImagePath = getPath(uri);
+            selectedImagePath = getPath(getApplicationContext(), uri);
 
-                        Log.i("onActivityResult", "Path: " + selectedImagePath);
-                        EditText imgPath = findViewById(R.id.vidPath);
-                        imgPath.setText(selectedImagePath);
-                        Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
+            Log.i("onActivityResult", "Path: " + selectedImagePath);
+            EditText imgPath = findViewById(R.id.vidPath);
+            imgPath.setText(selectedImagePath);
+            Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+        }
+    }
 
     private void requestPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -328,31 +323,42 @@ public class MainActivity<IPV4> extends AppCompatActivity {
     }
 
     public void checkProgress(@Nullable View v) throws IOException {
-        String url_1 = "http://" + IPV4 + "/status/753e71d9-427a-4f50-8527-4fb289b7e42b";
-        Log.i("Json", getUrl);
+//        String url_1 = "http://" + ipv4AddressAndPort + "/status/753e71d9-427a-4f50-8527-4fb289b7e42b";
+//        Log.i("Json", getUrl);
+
 
         Thread thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    String result = getRequest(getUrl);
-                    JSONObject object = new JSONObject(result);
-                    String state = object.getString("state");
-                    Log.i("Json", object.getString("state"));
-                    if (state.equals("SUCCESS")) {
-                        JSONArray actions = object.getJSONArray("result");
-                        SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("ACTION_RESULT", actions.toString());
-                        editor.apply();
-                    }
-                    //Your code goes here
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Result is " + state, Toast.LENGTH_LONG).show();
+                    while(true){
+                        String result = getRequest(getUrl);
+                        JSONObject object = new JSONObject(result);
+                        String state = object.getString("state");
+                        Log.i("Json", object.getString("state"));
+
+                        //Your code goes here
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                responseText.setText(state);
+                                Toast.makeText(getApplicationContext(), "Result is " + state, Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        if (state.equals("SUCCESS")) {
+                            JSONArray actions = object.getJSONArray("result");
+                            SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("ACTION_RESULT", actions.toString());
+                            editor.apply();
+                            Log.i("Json", "state is success, result saved");
+                            break;
                         }
-                    });
+
+                        Thread.sleep(30000);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -395,6 +401,7 @@ public class MainActivity<IPV4> extends AppCompatActivity {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     getResponse.close();
+                    response.close();
                     // do something wih the result
                 }
             }
