@@ -12,7 +12,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +32,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import android.view.View;
 import android.widget.EditText;
@@ -54,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     String postUrl;
     String getUrl;
     TextView responseText;
+    Bitmap bitmap1;
+    Bitmap bitmap2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
         responseText = findViewById(R.id.responseText);
         SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
         getUrl = sharedPref.getString("URL", null);
-    }
+
+      }
 
     public static String getPath(final Context context, final Uri uri) {
 
@@ -286,7 +293,6 @@ public class MainActivity extends AppCompatActivity {
         if (resCode == RESULT_OK && data != null && reqCode == REQUEST_CODE) {
             Log.i("onActivityResult", "Good");
             Uri uri = data.getData();
-//            selectedImagePath = getPath(uri);
             selectedImagePath = getPath(getApplicationContext(), uri);
 
             Log.i("onActivityResult", "Path: " + selectedImagePath);
@@ -294,6 +300,37 @@ public class MainActivity extends AppCompatActivity {
             imgPath.setText(selectedImagePath);
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
         }
+        else if (resCode == RESULT_OK && data != null && reqCode == 2){
+            Log.i("onActivityResult", "Good");
+            Uri uri = data.getData();
+            try{
+                    ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
+                    bitmap1 = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true);;
+                } catch (Exception e){
+                    System.out.println("noooo");
+                }
+        }
+        else if (resCode == RESULT_OK && data != null && reqCode == 4){
+            Log.i("onActivityResult", "Good");
+            Uri uri = data.getData();
+            try{
+                ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
+                bitmap2 = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true);;
+            } catch (Exception e){
+                System.out.println("noooo");
+            }
+            checkSimilarity();
+        }
+
+    }
+
+    private void checkSimilarity() {
+        System.out.println("WOOOOHH");
+        HashSimilarity similarity = new HashSimilarity();
+        Log.i("Page Similarity", String.valueOf(similarity.computeDifference(bitmap1, bitmap2, "A")));
+        Log.i("Page Similarity", String.valueOf(similarity.computeDifference(bitmap1, bitmap2, "D")));
+        Log.i("Page Similarity", String.valueOf(similarity.computeDifference(bitmap1, bitmap2, "P")));
+
     }
 
     private void requestPermission() {
@@ -409,4 +446,39 @@ public class MainActivity extends AppCompatActivity {
         return getResponse.body().string();
 
     }
+
+    private void pick_image_path(String name, Integer value) {
+        Intent intent = new Intent();
+        intent.setType("image/png");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra(name, "true");
+        startActivityForResult(intent, value);
+    }
+
+    public void image_1(View v) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkPermission()) {
+                pick_image_path("image1", 2);
+            } else {
+                requestPermission();
+            }
+        } else {
+            pick_image_path("image1", 2);
+        }
+    }
+
+    public void image_2(View v) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkPermission()) {
+                pick_image_path("image2", 4);
+            } else {
+                requestPermission();
+            }
+        } else {
+            pick_image_path("image2", 4);
+
+        }
+    }
+
+
 }
