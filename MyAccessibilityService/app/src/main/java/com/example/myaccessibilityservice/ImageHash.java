@@ -2,13 +2,17 @@ package com.example.myaccessibilityservice;
 
 import android.graphics.Bitmap;
 
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 
 import android.graphics.Paint;
 
 public class ImageHash {
+
+    public static double pi = 3.142857;
 
     public String imgDHash(Bitmap img) {
         Bitmap bitOut = resize(img, 9, 8);
@@ -19,7 +23,7 @@ public class ImageHash {
     public String imgAHash(Bitmap img) {
         Bitmap bitOut = resize(img, 8, 8);
         Bitmap greyBitOut = convertGreyscale(bitOut);
-        Integer avgBit = calculateAverageColor(greyBitOut);
+        Integer avgBit = calculateAvgColour(greyBitOut);
         return aHash(bitOut, avgBit);
     }
 
@@ -27,11 +31,11 @@ public class ImageHash {
         Bitmap bitOut = resize(img, 32, 32);
         Bitmap greyBitOut = convertGreyscale(bitOut);
         Bitmap dctVals = applyDCT(greyBitOut);
-        Double avgDct = avgDCT(dctVals);
+        Integer avgDct = avgDCT(dctVals);
         return pHash(dctVals, avgDct);
     }
 
-    private Double avgDCT(Bitmap bit){
+    private Integer avgDCT(Bitmap bit){
         double total = 0;
 
         for (int x = 0; x < 8; x++) {
@@ -43,48 +47,74 @@ public class ImageHash {
 
         double avg = total / (double) ((8 * 8) - 1);
 
-        return avg;
-    }
-
-    private double[] c;
-
-    private void initCoefficients() {
-        c = new double[32];
-
-        for (int i = 1; i < 32; i++) {
-            c[i] = 1;
-        }
-        c[0] = 1 / Math.sqrt(2.0);
+        return (int) avg;
     }
 
     private Bitmap applyDCT(Bitmap bitmap) {
-        initCoefficients();
-        int N = 32;
+        int i, j, k, l;
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
 
-        Bitmap bit = Bitmap.createBitmap(N, N, Bitmap.Config.ARGB_8888);
-        for (int u = 0; u < N; u++) {
-            for (int v = 0; v < N; v++) {
-                double sum = 0.0;
-                for (int i = 0; i < N; i++) {
-                    for (int j = 0; j < N; j++) {
-                        sum += Math.cos(((2 * i + 1) / (2.0 * N)) * u * Math.PI) * Math.cos(((2 * j + 1) / (2.0 * N)) * v * Math.PI) * (bitmap.getPixel(u,v));
+        Bitmap bitOut = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
+
+        double ci, cj, dct1, sum;
+
+        for (i = 0; i < width; i++)
+        {
+            for (j = 0; j < height; j++)
+            {
+
+                if (i == 0)
+                    ci = 1 / Math.sqrt(width);
+                else
+                    ci = Math.sqrt(2) / Math.sqrt(width);
+
+                if (j == 0)
+                    cj = 1 / Math.sqrt(height);
+                else
+                    cj = Math.sqrt(2) / Math.sqrt(height);
+
+                sum = 0;
+                for (k = 0; k < width; k++)
+                {
+                    for (l = 0; l < height; l++)
+                    {
+                        dct1 = bitmap.getPixel(k, l) *
+                                Math.cos((2 * k + 1) * i * pi / (2 * width)) *
+                                Math.cos((2 * l + 1) * j * pi / (2 * height));
+                        sum = sum + dct1;
                     }
                 }
-                sum *= ((c[u] * c[v]) / 4.0);
-                bit.setPixel(u, v, (int) sum);
+                bitOut.setPixel(i, j, (int) (ci*cj*sum));
             }
         }
-        return bit;
+        return bitOut;
     }
 
-    private int calculateAverageColor(Bitmap bitmap) {
-        int val = 0;
-        for (int i=0;i<bitmap.getHeight();i++){
-            for (int j=0;j<bitmap.getWidth();j++){
-                val += bitmap.getPixel(i, j);
+
+    private int calculateAvgColour(Bitmap bitmap){
+        int redBucket = 0;
+        int greenBucket = 0;
+        int blueBucket = 0;
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int pixelCount = 0;
+        int c = 0;
+
+        for (int y = 0; y < height; y += 1) {
+            for (int x = 0; x < width; x += 1) {
+                c = bitmap.getPixel(x, y);
+
+                redBucket += Color.red(c);
+                greenBucket += Color.green(c);
+                blueBucket += Color.blue(c);
+                pixelCount++;
             }
         }
-        return val / 64;
+
+        return Color.rgb(redBucket / pixelCount, greenBucket / pixelCount,
+                blueBucket / pixelCount);
     }
 
 
@@ -144,7 +174,7 @@ public class ImageHash {
         return out;
     }
 
-    private String pHash(Bitmap bit, Double avgDCT){
+    private String pHash(Bitmap bit, Integer avgDCT){
         String out = "";
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
