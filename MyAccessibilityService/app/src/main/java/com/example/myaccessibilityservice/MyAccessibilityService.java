@@ -230,11 +230,11 @@ public class MyAccessibilityService extends AccessibilityService {
                     byte[] buffer = new byte[size];
                     is.read(buffer);
                     is.close();
-
+//
                     json = new String(buffer, StandardCharsets.UTF_8);
-
-                    // change to detected action for using the online result
-                    jsonArray = new JSONArray(json);
+//
+//                    // change to detected action for using the online result
+                    jsonArray = new JSONArray(detectedActions);
 
                     if(!paused){
                         currentActionIndex = 0;
