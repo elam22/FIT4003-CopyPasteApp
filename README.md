@@ -46,6 +46,7 @@ Touch Model | saved_model.pb | ```pythonv2s/v2s/phase1/detection/touch_model/sav
     - 'tensorflow-mac-os' (only install if you run a MacOS device)
 4. Run ```cd to \BackendWithV2S\flask_application```
 5. Run ```pip install -r requirements.txt```
+6. Create an uploads folder in main directory 
 
 ### Docker
 Needed for redis, which is a database then can save our result. Create and start an image of the backend. 
