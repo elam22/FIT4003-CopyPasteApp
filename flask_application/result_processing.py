@@ -1,5 +1,8 @@
 import math
-
+import os
+import re
+import difflib
+from v2s.util.general import JSONFileUtils
 import requests
 import json
 from base64 import b64encode
@@ -52,26 +55,14 @@ class TextBound:
 
 def ocr(img_path):
     ocr_result = ocr_detection_google(img_path)
-    filtered_text = remove_symbol(filter_noise(ocr_result))
-    return filtered_text
+    # filtered_text = remove_symbol(filter_noise(ocr_result))
 
+    res = ''
+    for result in ocr_result:
+        res += result['description']
 
-def google_ocr_make_image_data(img_path):
-    with open(img_path, 'rb') as f:
-        ctxt = b64encode(f.read()).decode()
-        img_req = {
-            'image': {
-                'content': ctxt
-            },
-            'features': [{
-                'type': 'DOCUMENT_TEXT_DETECTION',
-                # 'type': 'TEXT_DETECTION',
-                'maxResults': 1
-            }]
-        }
-    return json.dumps({"requests": img_req}).encode()
-
-
+    # return filtered_text
+    return res
 
 def google_ocr_make_image_data(img_path):
     with open(img_path, 'rb') as f:
@@ -91,7 +82,7 @@ def google_ocr_make_image_data(img_path):
 
 def ocr_detection_google(img_path):
     url = 'https://vision.googleapis.com/v1/images:annotate'
-    api_key = ''  # *** Replace with your own Key ***
+    api_key = 'AIzaSyC9Vx_8fQbreU_WpPr39tN2oRxgHY5i5WQ'  # *** Replace with your own Key ***
     img_data = google_ocr_make_image_data(img_path)
     response = requests.post(url,
                              data=img_data,
@@ -123,7 +114,68 @@ def remove_symbol(string):
     return new_string
 
 
-def extract_action(incomplete_actions):
+def identify_type(extracted_actions):
+    actions = []
+    type_action = {}
+    type_start = None
+
+    for i in range(len(extracted_actions)):
+        ocr_result = extracted_actions[i]['resulting_screen_ocr']
+        keyboard_pattern = re.search(r'[asdfghjkl]{5,}.*[zxcvbnm]{5,}', ocr_result)
+
+        if not keyboard_pattern:
+            if type_action:
+                actions.append(type_action)
+            else:
+                actions.append(extracted_actions[i])
+        elif keyboard_pattern and not type_start:
+            type_start = extracted_actions[i]
+            type_action = {'act_type': "TYPE", 'actions': [extracted_actions[i]]}
+        elif keyboard_pattern and i != len(extracted_actions) - 1:
+            type_action['actions'].append(extracted_actions[i])
+        elif keyboard_pattern and i == len(extracted_actions) - 1:
+            type_action['actions'].append(extracted_actions[i])
+            actions.append(type_action)
+
+    for action in actions:
+        if action['act_type'] == 'TYPE':
+            detect_potential_type_text(action)
+
+    return actions
+
+def detect_potential_type_text(type_actions):
+    type_end_ocr = type_actions['actions'][-1]['resulting_screen_ocr']
+    type_start_ocr = type_actions['actions'][0]['resulting_screen_ocr']
+    difference = difflib.ndiff(type_start_ocr, type_end_ocr)
+
+    # print(''.join(difference), end='')
+
+    potential_types = []
+    type_text = ''
+    prev_text_idx = -1
+
+    for j, s in enumerate(difference):
+        if s[0] == '+':
+            # print(u'Add "{}" to position {}'.format(s[-1], j))
+            if len(type_text) == 0:
+                type_text = s[-1]
+            elif j == prev_text_idx + 1:
+                type_text += s[-1]
+            else:
+                potential_types.append(type_text)
+                type_text = s[-1]
+            prev_text_idx = j
+        elif len(type_text) > 0:
+            potential_types.append(type_text)
+            type_text = ''
+
+    # for k in potential_types:
+    #     print(k)
+
+    type_actions['potential_types'] = potential_types
+
+
+def extract_action(incomplete_actions, filepath):
     prev = incomplete_actions[0]
     screenId = [prev["screenId"]]
     taps = [prev["screenTap"][0]]
@@ -148,6 +200,9 @@ def extract_action(incomplete_actions):
     getAction(taps)
     together = {"act_type": getAction(taps), "frames": screenId, "taps": taps}
     detected_actions.append(together)
+
+    JSONFileUtils.output_data_to_json(detected_actions, os.path.join(filepath.rsplit(".", 1)[0], "detected_actions.json"))
+
     actions = []
     for detected_action in detected_actions:
         action = dict()

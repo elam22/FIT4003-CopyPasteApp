@@ -1,4 +1,6 @@
 import os
+# import re
+# import difflib
 import timeit
 
 from flask import Flask, flash, request, redirect, url_for, jsonify
@@ -21,13 +23,20 @@ celery = Celery(app.name,
                 result_backend=app.config['CELERY_BROKER_URL'])
 
 
-@celery.task(bind=True)
-def process_video(self, filepath):
-    self.update_state(state='PROCESSING')
+# @celery.task(bind=True)
+@app.route('/pv', methods=['GET'])
+def process_video():
+    args = request.args
+    filepath = args.get('filepath')
+    # self.update_state(state='PROCESSING')
 
     start = timeit.default_timer()
+
     detected_actions_json = execute_v2s(filepath)
-    extracted_actions = extract_action(detected_actions_json)
+
+    extracted_actions = extract_action(detected_actions_json, filepath)
+
+    JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "extracted_actions.json"))
 
     file_path, extension = os.path.splitext(filepath)
 
@@ -37,7 +46,7 @@ def process_video(self, filepath):
         if extracted_actions[i]["act_type"] != "SWIPE":
             screen = extracted_actions[i]['first_frame'] - 1
             screen_number = f'{screen:04}'
-            screen_path = file_path +  f"/extracted_frames/{screen_number}.jpg"
+            screen_path = file_path + f"/extracted_frames/{screen_number}.jpg"
 
             coordinate = extracted_actions[i]['taps'][0]
 
@@ -48,7 +57,7 @@ def process_video(self, filepath):
         # the result of the last action
         if i == len(extracted_actions) - 1:
             # find the number of total frames in the video
-            extracted_frames_dir = file_path  + f"/extracted_frames/"
+            extracted_frames_dir = file_path + f"/extracted_frames/"
             total_frames = len([name for name in os.listdir(extracted_frames_dir) if
                                 os.path.isfile(os.path.join(extracted_frames_dir, name))])
 
@@ -65,18 +74,19 @@ def process_video(self, filepath):
             screen_before_next_action = extracted_actions[i+1]['first_frame'] - 1
             screen_number = f'{screen_before_next_action:04}'
 
-        screen_path = file_path +  f"/extracted_frames/{screen_number}.jpg"
+        screen_path = file_path + f"/extracted_frames/{screen_number}.jpg"
         extracted_actions[i]['resulting_screen_ocr'] = ocr(screen_path)
 
-    # self.update_state(result=extracted_actions)
-    JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
+    extracted_actions = JSONFileUtils.read_data_from_json(os.path.join(filepath.rsplit(".", 1)[0], "raw_ocr_actions.json"))
+    processed_actions = identify_type(extracted_actions)
 
     duration = timeit.default_timer() - start
     # self.update_state(result=extracted_actions)
     JSONFileUtils.output_data_to_json({"duartion": duration}, os.path.join(filepath.rsplit(".", 1)[0], "duration.json"))
-    JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
-    return extracted_actions
-
+    # JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
+    JSONFileUtils.output_data_to_json(processed_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
+    # return extracted_actions
+    return 'OK'
 
 
 def allowed_file(filename):
@@ -139,4 +149,4 @@ def task_status(task_id):
 
 
 if __name__ == '__main__':
-    app.run(host="192.168.20.17", port=5000, debug=True) #CHANGE TO YOUR IPV4 ADDRESS
+    app.run(host="127.0.0.1", port=5000, debug=True) #CHANGE TO YOUR IPV4 ADDRESS
