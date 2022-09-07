@@ -43,7 +43,7 @@ Touch Model | saved_model.pb | ```pythonv2s/v2s/phase1/detection/touch_model/sav
     - 'scipy==1.3.1',
     - 'tensorboard==2.0.0',
     - 'tensorflow==2.5.0',
-    - 'tensorflow-mac-os==2.0.0' (only install if you run a MacOS device)
+    - 'tensorflow-macos==2.0.0' (only install if you run a MacOS device)
 4. Run ```cd to \BackendWithV2S\flask_application```
 5. Run ```pip install -r requirements.txt```
 6. Create an uploads folder in main directory 
