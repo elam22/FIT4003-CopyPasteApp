@@ -41,9 +41,9 @@ Touch Model | saved_model.pb | ```pythonv2s/v2s/phase1/detection/touch_model/sav
     - 'numpy>=1.20.2',
     - 'Pillow==6.2.0',
     - 'scipy==1.3.1',
-    - 'tensorboard>=2.0.0',
-    - 'tensorflow>=2.0.0',
-    - 'tensorflow-mac-os' (only install if you run a MacOS device)
+    - 'tensorboard==2.0.0',
+    - 'tensorflow==2.5.0',
+    - 'tensorflow-mac-os==2.0.0' (only install if you run a MacOS device)
 4. Run ```cd to \BackendWithV2S\flask_application```
 5. Run ```pip install -r requirements.txt```
 6. Create an uploads folder in main directory 
@@ -74,13 +74,14 @@ Only set up if emulator is needed.
 
 ### Front-end
 1. Build Gradle file located in ```\MyAccessibilityServce\```
-2. Open AccessibilityService App
-3. Click 'Upload Video' Button and select video
-4. A pop-up should appear notifying that the video is being processed
-5. Click 'Check Progress' for video updates
-6. Once complete, go to phone settings -> accessibility
-7. Allow AccessibilityService access. 'Do Action' pop-up button should appear. 
-8. Navigate to first screen of video demonstration. Click Do Action. 
+2. In MainApplication.py change the ip address to be static to your ipv4 address
+3. Open AccessibilityService App
+4. Click 'Upload Video' Button and select video
+5. A pop-up should appear notifying that the video is being processed
+6. Click 'Check Progress' for video updates
+7. Once complete, go to phone settings -> accessibility
+8. Allow AccessibilityService access. 'Do Action' pop-up button should appear. 
+9. Navigate to first screen of video demonstration. Click Do Action. 
 
 ## Modifications/Known Issues
 * Network Address: Previous issues running ```flask run``` on ipv4 local network. Current Fix: hardcoding ipv4 address in app.py and running ```python3 app.py```
