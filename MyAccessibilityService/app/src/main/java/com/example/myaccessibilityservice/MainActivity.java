@@ -5,6 +5,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
 import android.content.ContentUris;
@@ -34,6 +38,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -49,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     String selectedImagePath;
     int REQUEST_CODE = 3;
     EditText ipv4AddressView;
-    String ipv4AddressAndPort = "192.168.20.17:5000";
+    String ipv4AddressAndPort = "192.168.100.14:5000";
     RequestBody requestBody;
     String postUrl;
     String getUrl;
@@ -60,11 +66,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ipv4AddressView = findViewById(R.id.IPAddress);
+//        ipv4AddressView = findViewById(R.id.IPAddress);
 //        ipv4AddressAndPort = ipv4AddressView.getText().toString();
         responseText = findViewById(R.id.responseText);
         SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
         getUrl = sharedPref.getString("URL", null);
+
+
+        //navigation
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_home, R.id.navigation_explore, R.id.navigation_help, R.id.navigation_settings)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_bottom_nav);
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(navView, navController);
     }
 
     public static String getPath(final Context context, final Uri uri) {
@@ -176,30 +194,6 @@ public class MainActivity extends AppCompatActivity {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    public void uploadVideo(View v) {
-        postUrl = "http://" + ipv4AddressAndPort + "/";
-
-//        RequestBody postBody = new FormBody.Builder().add("value","hello").build();
-//        postRequest(postUrl, postBody);
-        if (selectedImagePath != null) {
-            File file = new File(selectedImagePath);
-            try {
-                requestBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("file", file.getName(), RequestBody.create(file, MediaType.parse("video/mp4")))
-                        .build();
-                Log.i("Upload", String.valueOf(requestBody.contentType()));
-                postRequest(postUrl, requestBody);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i("Upload", "failed");
-
-            }
-        } else {
-            Toast.makeText(getApplicationContext(), "Select a video", Toast.LENGTH_LONG).show();
-        }
-    }
-
     void postRequest(String postUrl, RequestBody postBody) {
         OkHttpClient client = new OkHttpClient();
 
@@ -260,15 +254,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void uploadVideo() {
+        postUrl = "http://" + ipv4AddressAndPort + "/";
+
+//        RequestBody postBody = new FormBody.Builder().add("value","hello").build();
+//        postRequest(postUrl, postBody);
+        if (selectedImagePath != null) {
+            File file = new File(selectedImagePath);
+            try {
+                requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("file", file.getName(), RequestBody.create(file, MediaType.parse("video/mp4")))
+                        .build();
+                Log.i("Upload", String.valueOf(requestBody.contentType()));
+                postRequest(postUrl, requestBody);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i("Upload", "failed");
+
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Select a video", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
     public void selectVideo(View v) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkPermission()) {
                 pickVideo();
+                uploadVideo();
             } else {
                 requestPermission();
             }
         } else {
             pickVideo();
+            uploadVideo();
         }
     }
 
@@ -277,12 +299,14 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("video/mp4");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent, REQUEST_CODE);
+
     }
 
     @Override
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         super.onActivityResult(reqCode, resCode, data);
         Log.i("onActivityResult", "In");
+
         if (resCode == RESULT_OK && data != null && reqCode == REQUEST_CODE) {
             Log.i("onActivityResult", "Good");
             Uri uri = data.getData();
@@ -293,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
             EditText imgPath = findViewById(R.id.vidPath);
             imgPath.setText(selectedImagePath);
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+
         }
     }
 

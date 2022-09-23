@@ -6,4 +6,9 @@
     <string name="volume">Volume</string>
     <string name="scroll">Scroll</string>
     <string name="swipe">Swipe</string>
+    <string name="title_activity_bottom_nav">BottomNav</string>
+    <string name="title_home">Home</string>
+    <string name="title_help">Help</string>
+    <string name="title_explore">Explore</string>
+    <string name="title_settings">Settings</string>
 </resources>
