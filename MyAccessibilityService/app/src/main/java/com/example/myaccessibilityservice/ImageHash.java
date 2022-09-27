@@ -2,13 +2,15 @@ package com.example.myaccessibilityservice;
 
 import android.graphics.Bitmap;
 
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 
 import android.graphics.Paint;
+
+import java.math.BigInteger;
+
 
 public class ImageHash {
 
@@ -17,14 +19,17 @@ public class ImageHash {
     public String imgDHash(Bitmap img) {
         Bitmap bitOut = resize(img, 9, 8);
         Bitmap greyBitOut = convertGreyscale(bitOut);
-        return dHash(greyBitOut);
+        String hashArr = dHash(greyBitOut);
+        System.out.println(hashArr);
+        return convertHash(hashArr);
     }
 
     public String imgAHash(Bitmap img) {
-        Bitmap bitOut = resize(img, 8, 8);
-        Bitmap greyBitOut = convertGreyscale(bitOut);
-        Integer avgBit = calculateAvgColour(greyBitOut);
-        return aHash(bitOut, avgBit);
+        Bitmap greyBitOut = convertGreyscale(img);
+        Bitmap bitOut = resize(greyBitOut, 8, 8);
+        Double avgBit = calculateAvgColour(bitOut);
+        String hashArr = aHash(bitOut, avgBit);
+        return convertHash(hashArr);
     }
 
     public String imgPHash(Bitmap img) {
@@ -32,8 +37,19 @@ public class ImageHash {
         Bitmap greyBitOut = convertGreyscale(bitOut);
         Bitmap dctVals = applyDCT(greyBitOut);
         Integer avgDct = avgDCT(dctVals);
-        return pHash(dctVals, avgDct);
+        String hashArr = pHash(dctVals, avgDct);
+        return convertHash(hashArr);
     }
+
+    private String convertHash(String hash) {
+        Double width_d = Math.ceil(hash.length() / 4.0);
+        Integer width = width_d.intValue();
+        String format_str = "%" + width + "s";
+        BigInteger base_val = new BigInteger(hash, 2);
+        String hash_out = String.format(format_str, base_val.toString(16)).replace(' ', '0');
+        return hash_out;
+    }
+
 
     private Integer avgDCT(Bitmap bit){
         double total = 0;
@@ -92,29 +108,20 @@ public class ImageHash {
     }
 
 
-    private int calculateAvgColour(Bitmap bitmap){
-        int redBucket = 0;
-        int greenBucket = 0;
-        int blueBucket = 0;
-
+    private double calculateAvgColour(Bitmap bitmap){
+        int val = 0;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int pixelCount = 0;
-        int c = 0;
 
         for (int y = 0; y < height; y += 1) {
             for (int x = 0; x < width; x += 1) {
-                c = bitmap.getPixel(x, y);
-
-                redBucket += Color.red(c);
-                greenBucket += Color.green(c);
-                blueBucket += Color.blue(c);
+                val += bitmap.getPixel(x,y);
                 pixelCount++;
             }
         }
 
-        return Color.rgb(redBucket / pixelCount, greenBucket / pixelCount,
-                blueBucket / pixelCount);
+        return val/pixelCount;
     }
 
 
@@ -143,12 +150,11 @@ public class ImageHash {
         int width = bit.getWidth();
         int height = bit.getHeight();
 
-        for (int y=0;y<height;y++){
-            for (int x=0; x<width-1;x++){
-                if (bit.getPixel(x, y) > bit.getPixel(x +1, y)){
+        for (int x=0;x<width-1;x++) {
+            for (int y = 0; y < height; y++) {
+                if (bit.getPixel(x, y) > bit.getPixel(x + 1, y)) {
                     out += "1";
-                }
-                else{
+                } else {
                     out += "0";
                 }
             }
@@ -156,7 +162,7 @@ public class ImageHash {
         return out;
     }
 
-    private String aHash(Bitmap bit, Integer avgColour){
+    private String aHash(Bitmap bit, Double avgColour){
         String out = "";
         int width = bit.getWidth();
         int height = bit.getHeight();
@@ -176,8 +182,8 @@ public class ImageHash {
 
     private String pHash(Bitmap bit, Integer avgDCT){
         String out = "";
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
+        for (int x = 0; x <= 8; x++) {
+            for (int y = 0; y <= 8; y++) {
                 if (x != 0 && y != 0) {
                     if (bit.getPixel(x, y) > avgDCT) {
                         out += "1";

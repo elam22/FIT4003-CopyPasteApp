@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import android.view.View;
 import android.widget.EditText;
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     String selectedImagePath;
     int REQUEST_CODE = 3;
     EditText ipv4AddressView;
-    String ipv4AddressAndPort = "192.168.20.17:5000";
+    String ipv4AddressAndPort = "192.168.20.27:8080";
     RequestBody requestBody;
     String postUrl;
     String getUrl;
@@ -71,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
         responseText = findViewById(R.id.responseText);
         SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
         getUrl = sharedPref.getString("URL", null);
+
+        if (!Environment.isExternalStorageManager()){
+            Intent getpermission = new Intent();
+            getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+            startActivity(getpermission);
+        }
 
       }
 
@@ -300,38 +308,9 @@ public class MainActivity extends AppCompatActivity {
             imgPath.setText(selectedImagePath);
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
         }
-        else if (resCode == RESULT_OK && data != null && reqCode == 2){
-            Log.i("onActivityResult", "Good");
-            Uri uri = data.getData();
-            try{
-                    ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
-                    bitmap1 = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true);;
-                } catch (Exception e){
-                    System.out.println("noooo");
-                }
-        }
-        else if (resCode == RESULT_OK && data != null && reqCode == 4){
-            Log.i("onActivityResult", "Good");
-            Uri uri = data.getData();
-            try{
-                ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
-                bitmap2 = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true);;
-            } catch (Exception e){
-                System.out.println("noooo");
-            }
-            checkSimilarity();
-        }
 
     }
 
-    private void checkSimilarity() {
-        System.out.println("WOOOOHH");
-        HashSimilarity similarity = new HashSimilarity();
-        Log.i("Page Similarity", String.valueOf(similarity.computeDifference(bitmap1, bitmap2, "A")));
-        Log.i("Page Similarity", String.valueOf(similarity.computeDifference(bitmap1, bitmap2, "D")));
-        Log.i("Page Similarity", String.valueOf(similarity.computeDifference(bitmap1, bitmap2, "P")));
-
-    }
 
     private void requestPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -372,14 +351,24 @@ public class MainActivity extends AppCompatActivity {
                     while(true){
                         String result = getRequest(getUrl);
                         JSONObject object = new JSONObject(result);
-                        String state = object.getString("state");
+                        String state;
+                        try {
+                            state = object.getString("state");
+
+                        } catch (Exception e){
+                            Thread.sleep(5000);
+                            state = object.getString("state");
+                        }
+
+
                         Log.i("Json", object.getString("state"));
 
                         //Your code goes here
+                        String finalState = state;
                         MainActivity.this.runOnUiThread(new Runnable() {
                             public void run() {
-                                responseText.setText(state);
-                                Toast.makeText(getApplicationContext(), "Result is " + state, Toast.LENGTH_LONG).show();
+                                responseText.setText(finalState);
+                                Toast.makeText(getApplicationContext(), "Result is " + finalState, Toast.LENGTH_LONG).show();
                             }
                         });
 
@@ -419,7 +408,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getRequest(String url) throws IOException {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(300, TimeUnit.SECONDS)
+                .build();;
+
 //        final JSONObject[] responseResult = new JSONObject[1];
         Request request = new Request.Builder()
                 .url(url)
@@ -437,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 } else {
-                    getResponse.close();
+//                    getResponse.close();
                     response.close();
                     // do something wih the result
                 }

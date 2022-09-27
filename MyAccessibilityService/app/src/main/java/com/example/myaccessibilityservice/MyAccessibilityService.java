@@ -1,14 +1,25 @@
 package com.example.myaccessibilityservice;
 
+import static android.view.Display.DEFAULT_DISPLAY;
+
+import android.Manifest;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Service;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.os.Environment;
+import android.os.FileObserver;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +28,17 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +46,15 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MyAccessibilityService extends AccessibilityService {
 
@@ -39,6 +63,11 @@ public class MyAccessibilityService extends AccessibilityService {
     float currentScreenHeight;
     int currentActionIndex = 0;
     boolean paused = false;
+    Bitmap currScreen;
+    boolean screenshot = false;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    boolean sc = false;
+    String ipv4AddressAndPort = "192.168.20.27:8080";
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -85,7 +114,7 @@ public class MyAccessibilityService extends AccessibilityService {
         return null;
     }
 
-    private AccessibilityNodeInfo findNode(AccessibilityNodeInfo root, String nodeText){
+    private AccessibilityNodeInfo findNode(AccessibilityNodeInfo root, String nodeText) {
         Deque<AccessibilityNodeInfo> deque = new ArrayDeque<>();
         deque.add(root);
         AccessibilityNodeInfo nodeWanted = null;
@@ -106,8 +135,8 @@ public class MyAccessibilityService extends AccessibilityService {
                 }
             }
         }
-        if (nodeWanted != null){
-            while (true){
+        if (nodeWanted != null) {
+            while (true) {
                 if (nodeWanted.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
                     return nodeWanted;
                 } else {
@@ -213,7 +242,48 @@ public class MyAccessibilityService extends AccessibilityService {
 //                System.out.println(findContent(getRootInActiveWindow(), ""));
                 String json;
                 JSONArray jsonArray = null;
+
                 try {
+                    File dirToWatch = new File(Environment.getExternalStorageDirectory()
+                            + File.separator + Environment.DIRECTORY_PICTURES
+                            + File.separator + "Screenshots" + File.separator);
+                    FileObserver observer = new FileObserver(dirToWatch) { // set up a file observer to watch this directory on sd card
+                        @Override
+                        public void onEvent(int event, String file) {
+                            if (file != null && !file.contains(".pending")) {
+
+                                File directory = new File(dirToWatch.getPath());
+                                File[] files = directory.listFiles(File::isFile);
+                                long lastModifiedTime = Long.MIN_VALUE;
+                                File chosenFile = null;
+
+                                if (files != null)
+                                {
+                                    for (File f : files)
+                                    {
+                                        if (f.lastModified() > lastModifiedTime)
+                                        {
+                                            chosenFile = f;
+                                            lastModifiedTime = f.lastModified();
+                                        }
+                                    }
+                                }
+                                RequestBody requestBody = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("file", chosenFile.getName(), RequestBody.create(chosenFile, MediaType.parse("image/jpg")))
+                                        .build();
+                                postRequest(requestBody);
+                                screenshot = true;
+                                try {
+                                    Thread.sleep(3000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
+                    };
+                    observer.startWatching();
 
                     SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
                     String detectedActions = sharedPref.getString("ACTION_RESULT", "default");
@@ -236,12 +306,12 @@ public class MyAccessibilityService extends AccessibilityService {
 //                    // change to detected action for using the online result
                     jsonArray = new JSONArray(detectedActions);
 
-                    if(!paused){
+                    if (!paused) {
                         currentActionIndex = 0;
-                    }else{
+                    } else {
                         paused = false;
                     }
-                    AccessibilityNodeInfo currentNode=getRootInActiveWindow();
+                    AccessibilityNodeInfo currentNode = getRootInActiveWindow();
                     String previousScreenContent = "";
                     previousScreenContent = findContent(currentNode, previousScreenContent);
                     previousScreenContent = filterNoise(previousScreenContent);
@@ -251,6 +321,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     //previousScreenContent = "PeopleCONVERSATIONSTHATCANINTERRUPTConversationsNoneWHOCANINTERRUPTCallsStarredcontactsandrepeatcallersMessagesNone";
 
                     for (int i = currentActionIndex; i < jsonArray.length(); i++) {
+                        screenshot = false;
                         JSONObject action = jsonArray.getJSONObject(i);
                         String act_type = action.getString("act_type");
                         Log.i("detected_actions", String.valueOf(action));
@@ -258,30 +329,30 @@ public class MyAccessibilityService extends AccessibilityService {
                             JSONObject tap = (JSONObject) action.getJSONArray("taps").get(0);
                             float x = tap.getInt("x");
                             float y = tap.getInt("y");
-                            if (currentScreenWidth == 1080 && currentScreenHeight == 1920)
-                            {
+                            if (currentScreenWidth == 1080 && currentScreenHeight == 1920) {
 
                                 System.out.println("same resolution");
-                            }
-                            else
-                            {
-                                x = ((x/1080)*currentScreenWidth);
-                                y = ((y/1920)*currentScreenHeight);
+                            } else {
+                                x = ((x / 1080) * currentScreenWidth);
+                                y = ((y / 1920) * currentScreenHeight);
                                 System.out.println("x: " + x + " y: " + y);
                             }
 
                             String result = action.getString("resulting_screen_ocr");
 
-                            currentNode=getRootInActiveWindow();
-                            List<AccessibilityNodeInfo> targetList = findTargetNode(currentNode, x, y);;
+                            String img_hashmap = action.getString("resulting_hashmap");
+
+                            currentNode = getRootInActiveWindow();
+                            List<AccessibilityNodeInfo> targetList = findTargetNode(currentNode, x, y);
+                            ;
                             //targetList = findTargetNode(currentNode, x, y);
 
                             //for loop to loop through target list and find the one with similarity
                             // larger than 90%. if not found after looping through the whole list then
                             // ask the user to help.
-                            for (int j = 0; j < targetList.size(); j++){
+                            for (int j = 0; j < targetList.size(); j++) {
                                 //get the node in the target list and perform click action.
-                                currentNode=getRootInActiveWindow();
+                                currentNode = getRootInActiveWindow();
                                 targetList = findTargetNode(currentNode, x, y);
 
                                 // get 3 node with closet distance
@@ -300,52 +371,75 @@ public class MyAccessibilityService extends AccessibilityService {
 
                                 Log.i("detected_actions", "directed screen: " + content);
                                 Log.i("detected_actions", "result screen: " + result);
-                                int similarCharacterCount = lcsCount(result, content);
-                                int similarity;
-                                if (content.length() == 0) {
-                                    similarity = 0;
-                                } else {
-                                    similarity = Math.max(similarCharacterCount * 100 / result.length(), similarCharacterCount * 100 / content.length());
-                                }
-                                System.out.println("Similarity wtih current page= " + similarity + "%\n");
-                                Toast.makeText(getApplicationContext(), "Taped on" + findContent(targetList.get(j), ""), Toast.LENGTH_LONG);
+                                Log.i("detected_actions", "hashed result screen: " + img_hashmap);
 
-                                Log.i("detected_actions", "Taped on " + findContent(targetList.get(j), ""));
-                                Log.i("detected_actions", "Similarity = " + similarity);
-                                Log.i("detected_actions", "                  ");
+                                performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT);
+                                observer.startWatching();
+                                Thread.sleep(10000);
+                                observer.stopWatching();
 
-                                if (similarity < 85) {
-                                    Toast.makeText(getApplicationContext(), "Wrong screen", Toast.LENGTH_LONG).show();
-                                    // if similarity less than 90 then
-                                    //System.out.println("Wrong tab");
-                                    similarCharacterCount = lcsCount(previousScreenContent, content);
-                                    similarity = similarCharacterCount * 100 / previousScreenContent.length();
-                                    System.out.println("Similarity with previous page = " + similarity + "%\n");
-                                    if (similarity >= 85) {
-                                        currentNode = getRootInActiveWindow();
-                                        List<AccessibilityNodeInfo> newList = new ArrayList<>();
-                                        newList = findTargetNode(currentNode, x, y);
-                                        //System.out.println(newList.get(j).getText().toString());
-                                        newList.get(j).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                String hash = sharedPref.getString("ImageHash", "default");
+                                Log.i("detected_actions", "device result screen: " + hash);
+
+                                if (screenshot) {
+                                    int similarCharacterCount = lcsCount(result, content);
+                                    int similarity;
+                                    double overallsimilarity;
+                                    if (content.length() == 0) {
+                                        similarity = 0;
                                     } else {
-                                        performGlobalAction(GLOBAL_ACTION_BACK);
+                                        similarity = Math.max(similarCharacterCount * 100 / result.length(), similarCharacterCount * 100 / content.length());
                                     }
-                                    Thread.sleep(3000);
-                                    if (j == 2) {
-                                        Toast.makeText(getApplicationContext(), "Unable to do the action correctly, help us do it", Toast.LENGTH_LONG).show();
-                                        Toast.makeText(getApplicationContext(), "Action hint is " + action.getString("action_hint"), Toast.LENGTH_LONG).show();
+                                    Log.i("Similarity", "Text Similarity: " + similarity);
+
+                                    double similarityHashCount = computeDifference(img_hashmap, hash);
+                                    Log.i("Similarity", "Pixel Similarity:  " + similarityHashCount);
+
+                                    if ((result.length() - content.length()) / result.length() < 0.5){
+                                        overallsimilarity = similarity * 0.4 + similarityHashCount * 0.6;
+                                    }
+                                    else {
+                                        overallsimilarity = similarity * 0.6 + similarityHashCount * 0.4;
+                                    }
+
+                                    Log.i("Similarity", "Hybrid Similarity: " + String.valueOf(overallsimilarity));
+
+                                    Toast.makeText(getApplicationContext(), "Taped on" + findContent(targetList.get(j), ""), Toast.LENGTH_LONG);
+                                    Log.i("detected_actions", "Taped on " + findContent(targetList.get(j), ""));
+
+                                    if (overallsimilarity < 70) {
+                                        Toast.makeText(getApplicationContext(), "Wrong screen", Toast.LENGTH_LONG).show();
+                                        // if similarity less than 90 then
+                                        //System.out.println("Wrong tab");
+                                        similarCharacterCount = lcsCount(previousScreenContent, content);
+                                        similarity = similarCharacterCount * 100 / previousScreenContent.length();
+                                        System.out.println("Similarity with previous page = " + similarity + "%\n");
+                                        if (overallsimilarity >= 70) {
+                                            currentNode = getRootInActiveWindow();
+                                            List<AccessibilityNodeInfo> newList = new ArrayList<>();
+                                            newList = findTargetNode(currentNode, x, y);
+                                            //System.out.println(newList.get(j).getText().toString());
+                                            newList.get(j).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                        } else {
+                                            performGlobalAction(GLOBAL_ACTION_BACK);
+                                        }
+                                        Thread.sleep(3000);
+                                        if (j == 2) {
+                                            Toast.makeText(getApplicationContext(), "Unable to do the action correctly, help us do it", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getApplicationContext(), "Action hint is " + action.getString("action_hint"), Toast.LENGTH_LONG).show();
 //                                        Toast.makeText(getApplicationContext(),"We are in the wrong page abort, and pls help us go to the correct page", Toast.LENGTH_LONG ).show();
-                                        paused = true;
-                                        currentActionIndex = i + 1;
+                                            paused = true;
+                                            currentActionIndex = i + 1;
+                                        }
+                                    } else {
+                                        break;
+
                                     }
-
+                                }  else{
+                                    Log.i("screenshot", "not screenshot");
                                 }
-                                else {
-                                    break;
-                                }
-
                             }
-                            if (paused){
+                            if (paused) {
                                 break;
                             }
                             //System.out.println(targetNode.getText().toString());
@@ -367,20 +461,20 @@ public class MyAccessibilityService extends AccessibilityService {
                             float yEnd = swipeEnd.getInt("y");
 
                             //use expect ratio to get the x y coordinate for target display
-                            xStart = ((xStart/1080)*currentScreenWidth);
-                            yStart = ((yStart/1920)*currentScreenHeight);
-                            xEnd = ((xEnd/1080)*currentScreenWidth);
-                            yEnd = ((yEnd/1920)*currentScreenHeight);
+                            xStart = ((xStart / 1080) * currentScreenWidth);
+                            yStart = ((yStart / 1920) * currentScreenHeight);
+                            xEnd = ((xEnd / 1080) * currentScreenWidth);
+                            yEnd = ((yEnd / 1920) * currentScreenHeight);
 
                             swipe(xStart, yStart, xEnd, yEnd);
                             Thread.sleep(5000);
-                        } else if(act_type.equals("LONG_CLICK")){
+                        } else if (act_type.equals("LONG_CLICK")) {
                             JSONObject tap = (JSONObject) action.getJSONArray("taps").get(0);
                             float x = tap.getInt("x");
                             float y = tap.getInt("y");
 
-                            x = ((x/1080)*currentScreenWidth);
-                            y = ((y/1920)*currentScreenHeight);
+                            x = ((x / 1080) * currentScreenWidth);
+                            y = ((y / 1920) * currentScreenHeight);
 
                             Log.i("tap", tap.getClass().toString());
                             Log.i("tap", tap.toString());
@@ -390,7 +484,7 @@ public class MyAccessibilityService extends AccessibilityService {
                             Thread.sleep(5000);
                         }
                     }
-                    if(!paused) {
+                    if (!paused) {
                         Toast.makeText(getApplicationContext(), "All actions done successfully", Toast.LENGTH_LONG);
                         Log.i("tap", "Done successfully");
 
@@ -404,6 +498,70 @@ public class MyAccessibilityService extends AccessibilityService {
             }
         });
     }
+
+    private double similarity(int dist, int length){
+        double similarity = (length - dist) / (double) length;
+        similarity = similarity *100;
+        return similarity;
+    }
+
+
+    private int hammingDistance(String imgHash1, String imgHash2){
+        int sum = 0;
+        for (int i = 0; i < imgHash1.length(); i++) {
+            if (imgHash1.charAt(i) != imgHash2.charAt(i)){
+                sum += 1;
+            }
+        }
+        return sum;
+    }
+
+    private double computeDifference(String img1, String img2){
+
+        int dist = hammingDistance(img1, img2);
+        return similarity(dist, img1.length());
+    }
+
+    void postRequest(RequestBody postBody) {
+
+        String postUrl = "http://" + ipv4AddressAndPort + "/image/";
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(postUrl)
+                .post(postBody)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Cancel the post on failure.
+                call.cancel();
+
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread
+
+//                        TextView responseText = findViewById(R.id.responseText);
+                        try {
+                            String responseData = response.body().string();
+                            JSONArray json = new JSONArray(responseData);
+                            if (Integer.parseInt(json.get(0).toString()) == 202) {
+                               // save to shared preferences
+                                SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("ImageHash", json.getJSONObject(1).getString("Hash"));
+                                editor.apply();
+                            }
+                        } catch (JSONException | IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+        });
+    }
+
+
 
     private void singleTapAt(float x, float y) {
         Path touchPath = new Path();
@@ -455,6 +613,43 @@ public class MyAccessibilityService extends AccessibilityService {
         }
 
         return content;
+    }
+
+    private Integer findTargetNodeString(AccessibilityNodeInfo root, Integer width, Integer height, Integer screen_w, Integer screen_h) throws JSONException {
+        Deque<AccessibilityNodeInfo> deque = new ArrayDeque<>();
+        deque.add(root);
+        AccessibilityNodeInfo currentNode;
+        Rect rect = new Rect();
+
+        List<AccessibilityNodeInfo> nodeArray = new ArrayList<>();
+        while (!deque.isEmpty()) {
+            AccessibilityNodeInfo node = deque.removeFirst();
+
+            if (node.getText() != null) {
+                nodeArray.add(node);
+            } else {
+                for (int i = 0; i < node.getChildCount(); i++) {
+                    deque.addLast(node.getChild(i));
+                }
+            }
+        }
+
+        float width_v = width/screen_w;
+        float height_v = height/screen_h;
+
+        List<AccessibilityNodeInfo> targetList = new ArrayList<>();
+        for ( int i = 0; i < nodeArray.size(); i ++) {
+            currentNode = nodeArray.get(i);
+            currentNode.getBoundsInScreen(rect);
+            float width_s = (Math.abs(rect.right - rect.left))/currentScreenWidth;
+            float height_s = (Math.abs(rect.top - rect.bottom))/currentScreenHeight;
+
+            if (width_s/width_v > 0.9 & height_s/height_v > 0.9){
+                return 1;
+            }
+
+        }
+        return 0;
     }
 
     private List<AccessibilityNodeInfo> findTargetNode(AccessibilityNodeInfo root, float x, float y){
@@ -592,6 +787,51 @@ public class MyAccessibilityService extends AccessibilityService {
         }
         return L[m][n];
     }
+
+    private int levenshteinDistanceCount(String ocr, String acc){
+
+        char[] X = ocr.toCharArray();
+        char[] Y = acc.toCharArray();
+        int m = X.length;
+        int n = Y.length;
+        int L[][] = new int[m+1][n+1];
+
+        for (int i =0; i<m; i++){
+            L[i][0] = X[i];
+        }
+
+        for (int j =0; j<n; j++){
+            L[0][j] = Y[j];
+        }
+
+        int a, b, c = 0;
+
+        for (int k=1; k<=m; k++){
+            for (int f=1; f<=n; f++){
+                if (X[k-1] == Y[f-1]){
+                    L[k][f] = L[k-1][f-1];
+                }
+                else{
+                    a = L[k][f-1];
+                    b = L[k-1][f];
+                    c = L[k-1][f-1];
+
+                    if (a<=b && a <=c){
+                        L[k][f] = a+1;
+                    }
+                    else if (b<=a && b<=c){
+                        L[k][f] = b+1;
+                    }
+                    else{
+                        L[k][f] = c+1;
+                    }
+                }
+            }
+        }
+        return L[m][n];
+    }
+
+
 
 //    private void lcs(String X, String Y)
 //    {

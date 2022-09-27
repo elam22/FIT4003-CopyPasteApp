@@ -10,6 +10,7 @@ from result_processing import *
 
 UPLOAD_FOLDER = os.getcwd().strip('flask_application') + 'uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'pdf'}
+ALLOWED_EXTENSIONS_IMAGE = {'jpg', 'jpeg', 'png'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -67,6 +68,7 @@ def process_video(self, filepath):
 
         screen_path = file_path +  f"/extracted_frames/{screen_number}.jpg"
         extracted_actions[i]['resulting_screen_ocr'] = ocr(screen_path)
+        extracted_actions[i]['resulting_hashmap'] = imgHash(screen_path)
 
     # self.update_state(result=extracted_actions)
     JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
@@ -78,10 +80,13 @@ def process_video(self, filepath):
     return extracted_actions
 
 
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_file_image(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_IMAGE
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -114,6 +119,37 @@ def upload_file():
     </form>
     '''
 
+@app.route('/image/', methods=['GET','POST'])
+def upload_image():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        print(file.filename)
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file_image(file.filename):
+            print("hi")
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            hash = imgHash(filepath)
+            return jsonify(202, {'Hash': hash})
+    return '''
+    <!doctype html>
+    <title>Upload new Image</title>
+    <h1>Upload new Image</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
 
 @app.route('/status/<task_id>')
 def task_status(task_id):
@@ -139,4 +175,4 @@ def task_status(task_id):
 
 
 if __name__ == '__main__':
-    app.run(host="192.168.20.17", port=5000, debug=True) #CHANGE TO YOUR IPV4 ADDRESS
+    app.run(host="0.0.0.0", port=8080, debug=True) #CHANGE TO YOUR IPV4 ADDRESS

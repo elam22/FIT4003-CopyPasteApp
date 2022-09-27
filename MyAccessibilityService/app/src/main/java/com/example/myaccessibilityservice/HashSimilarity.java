@@ -6,7 +6,8 @@ import android.graphics.Bitmap;
 
 public class HashSimilarity extends Application {
 
-    protected double computeDifference(Bitmap img1, Bitmap img2, String hash){
+    protected double computeDifference(String img1, Bitmap img2, String hash){
+        System.out.println(img2.toString());
         if (hash.equals("A")){
             return computeDifferenceAHash(img1, img2);
         }
@@ -20,38 +21,37 @@ public class HashSimilarity extends Application {
 
     }
 
-    private double computeDifferenceDHash(Bitmap img1, Bitmap img2){
+    private double computeDifferenceDHash(String img1, Bitmap img2){
 
-        String bitHash1 = new ImageHash().imgDHash(img1);
         String bitHash2 = new ImageHash().imgDHash(img2);
 
-        int dist = hammingDistance(bitHash1, bitHash2);
-        return similarity(dist, bitHash1.length());
+        int dist = hammingDistance(img1, bitHash2);
+        return similarity(dist, img1.length());
 
     }
 
-    private double computeDifferenceAHash(Bitmap img1, Bitmap img2){
+    private double computeDifferenceAHash(String img1, Bitmap img2){
 
-        String bitHash1 = new ImageHash().imgAHash(img1);
         String bitHash2 = new ImageHash().imgAHash(img2);
 
-        int dist = hammingDistance(bitHash1, bitHash2);
-        return similarity(dist, bitHash1.length());
+        System.out.println(bitHash2);
+        System.out.println(img1);
+
+        int dist = hammingDistance(img1, bitHash2);
+        return similarity(dist, img1.length());
     }
 
-    private double computeDifferencePHash(Bitmap img1, Bitmap img2){
+    private double computeDifferencePHash(String img1, Bitmap img2){
 
-        String bitHash1 = new ImageHash().imgPHash(img1);
-        String bitHash2 = new ImageHash().imgPHash(img2);
-
-        int dist = hammingDistance(bitHash1, bitHash2);
-        return similarity(dist, bitHash1.length());
+        String hash2 = new ImageHash().imgPHash(img2);
+        int dist = hammingDistance(img1, hash2);
+        return similarity(dist, img1.length());
     }
 
 
     private double similarity(int dist, int length){
         double similarity = (length - dist) / (double) length;
-        similarity = java.lang.Math.pow(similarity, 2);
+        similarity = similarity *100;
         return similarity;
     }
 
