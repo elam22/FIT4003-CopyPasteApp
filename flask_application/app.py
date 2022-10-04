@@ -10,6 +10,7 @@ from v2s_wrapper import execute_v2s
 from v2s.util.general import JSONFileUtils
 from result_processing import *
 
+
 UPLOAD_FOLDER = os.getcwd().strip('flask_application') + 'uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'pdf'}
 
@@ -36,8 +37,6 @@ def process_video():
 
     extracted_actions = extract_action(detected_actions_json, filepath)
 
-    JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "extracted_actions.json"))
-
     file_path, extension = os.path.splitext(filepath)
 
     # get the hint text for the action
@@ -46,18 +45,22 @@ def process_video():
         if extracted_actions[i]["act_type"] != "SWIPE":
             screen = extracted_actions[i]['first_frame'] - 1
             screen_number = f'{screen:04}'
-            screen_path = file_path + f"/extracted_frames/{screen_number}.jpg"
+            # screen_path = file_path + f"/extracted_frames/{screen_number}.jpg"
+            screen_path = os.path.join(filepath.rsplit(".", 1)[0], "extracted_frames", f"{screen_number}.jpg")
 
             coordinate = extracted_actions[i]['taps'][0]
 
             extracted_actions[i]['action_hint'] = get_action_hint(screen_path, coordinate)
+
+    # JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "extracted_actions.json"))
+    # extracted_actions = JSONFileUtils.read_data_from_json(os.path.join(filepath.rsplit(".", 1)[0], "extracted_actions.json"))
 
     # put the resulting screen ocr result
     for i in range(0, len(extracted_actions)):
         # the result of the last action
         if i == len(extracted_actions) - 1:
             # find the number of total frames in the video
-            extracted_frames_dir = file_path + f"/extracted_frames/"
+            extracted_frames_dir = os.path.join(filepath.rsplit(".", 1)[0], "extracted_frames")
             total_frames = len([name for name in os.listdir(extracted_frames_dir) if
                                 os.path.isfile(os.path.join(extracted_frames_dir, name))])
 
@@ -67,31 +70,56 @@ def process_video():
             if first_frame + 60 > total_frames:
                 screen_number = f'{total_frames:04}'
             else:
-                screen_number = f'{first_frame+60:04}'
-
+                screen_number = f'{first_frame + 60:04}'
         else:
             # the resulting screen of the first action is the the screen before the second action
-            screen_before_next_action = extracted_actions[i+1]['first_frame'] - 1
+            screen_before_next_action = extracted_actions[i + 1]['first_frame'] - 1
             screen_number = f'{screen_before_next_action:04}'
 
-        screen_path = file_path + f"/extracted_frames/{screen_number}.jpg"
-        extracted_actions[i]['resulting_screen_ocr'] = ocr(screen_path)
+        screen_path = os.path.join(filepath.rsplit(".", 1)[0], "extracted_frames", f"{screen_number}.jpg")
+        ocr_results = ocr(screen_path)
+        extracted_actions[i]['resulting_screen_ocr'] = ocr_results["resulting_screen_ocr"]
+        extracted_actions[i]['unfiltered_screen_ocr'] = ocr_results["unfiltered_screen_ocr"]
+        extracted_actions[i]['text_bounds'] = ocr_results["text_bounds"]
+        extracted_actions[i]['screen_number'] = screen_number
 
-    extracted_actions = JSONFileUtils.read_data_from_json(os.path.join(filepath.rsplit(".", 1)[0], "raw_ocr_actions.json"))
-    processed_actions = identify_type(extracted_actions)
+    # extracted_actions = JSONFileUtils.read_data_from_json(os.path.join(filepath.rsplit(".", 1)[0], "raw_ocr_actions.json"))
+    processed_actions = identify_type(extracted_actions, file_path)
 
     duration = timeit.default_timer() - start
     # self.update_state(result=extracted_actions)
     JSONFileUtils.output_data_to_json({"duartion": duration}, os.path.join(filepath.rsplit(".", 1)[0], "duration.json"))
-    # JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
+
+    for action in processed_actions:
+        if action["act_type"] == "TYPE":
+            for type_action in action["actions"]:
+                text_bounds = type_action["text_bounds"]
+                type_action["text_bounds"] = text_bounds.to_json()
+        else:
+            text_bounds = action["text_bounds"]
+            action["text_bounds"] = text_bounds.to_json()
+
     JSONFileUtils.output_data_to_json(processed_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
     # return extracted_actions
     return 'OK'
 
 
+def to_json(actions):
+    res = {}
+    for action in processed_actions:
+        if action["act_type"] == "TYPE":
+            for type_action in action["actions"]:
+                text_bounds = type_action["text_bounds"]
+                type_action["text_bounds"] = text_bounds.to_json()
+        else:
+            text_bounds = action["text_bounds"]
+            action["text_bounds"] = text_bounds.to_json()
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
