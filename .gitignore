@@ -4,3 +4,6 @@
 *.pyc
 *.pb
 *.idea
+flask_application/asset
+python_v2s
+python_v2s/v2s

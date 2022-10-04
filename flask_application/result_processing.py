@@ -146,7 +146,7 @@ def test_ocr(img_path):
 
 def test_ocr_detection_google(img_path):
     url = 'https://vision.googleapis.com/v1/images:annotate'
-    api_key = 'AIzaSyC9Vx_8fQbreU_WpPr39tN2oRxgHY5i5WQ'  # *** Replace with your own Key ***
+    api_key = ''  # *** Replace with your own Key ***
     img_data = google_ocr_make_image_data(img_path)
     response = requests.post(url,
                              data=img_data,
