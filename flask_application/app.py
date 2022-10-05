@@ -157,6 +157,7 @@ def task_status(task_id):
     if task.state == 'PENDING':
         # job did not start yet
         response = {
+            'state': task.state,
             'status': 'Pending...'
         }
     elif task.state != 'FAILURE':

@@ -381,67 +381,65 @@ public class MyAccessibilityService extends AccessibilityService {
                                 String hash = sharedPref.getString("ImageHash", "default");
                                 Log.i("detected_actions", "device result screen: " + hash);
 
-                                if (screenshot) {
-                                    int similarCharacterCount = lcsCount(result, content);
-                                    int similarity;
-                                    double overallsimilarity;
-                                    if (content.length() == 0) {
-                                        similarity = 0;
-                                    } else {
-                                        similarity = Math.max(similarCharacterCount * 100 / result.length(), similarCharacterCount * 100 / content.length());
-                                    }
-                                    Log.i("Similarity", "Text Similarity: " + similarity);
+                                int similarCharacterCount = lcsCount(result, content);
+                                int similarity;
+                                double overallsimilarity;
+                                if (content.length() == 0) {
+                                    similarity = 0;
+                                } else {
+                                    similarity = Math.max(similarCharacterCount * 100 / result.length(), similarCharacterCount * 100 / content.length());
+                                }
+                                Log.i("Similarity", "Text Similarity: " + similarity);
 
-                                    double similarityHashCount = computeDifference(img_hashmap, hash);
-                                    Log.i("Similarity", "Pixel Similarity:  " + similarityHashCount);
+                                double similarityHashCount = computeDifference(img_hashmap, hash);
+                                Log.i("Similarity", "Pixel Similarity:  " + similarityHashCount);
 
-                                    if ((result.length() - content.length()) / result.length() < 0.5){
-                                        overallsimilarity = similarity * 0.4 + similarityHashCount * 0.6;
-                                    }
-                                    else {
-                                        overallsimilarity = similarity * 0.6 + similarityHashCount * 0.4;
-                                    }
+                                if ((result.length() - content.length()) / result.length() < 0.5){
+                                    overallsimilarity = similarity * 0.4 + similarityHashCount * 0.6;
+                                }
+                                else {
+                                    overallsimilarity = similarity * 0.6 + similarityHashCount * 0.4;
+                                }
 
-                                    Log.i("Similarity", "Hybrid Similarity: " + String.valueOf(overallsimilarity));
+                                Log.i("Similarity", "Hybrid Similarity: " + String.valueOf(overallsimilarity));
 
-                                    Toast.makeText(getApplicationContext(), "Taped on" + findContent(targetList.get(j), ""), Toast.LENGTH_LONG);
-                                    Log.i("detected_actions", "Taped on " + findContent(targetList.get(j), ""));
+                                Toast.makeText(getApplicationContext(), "Taped on" + findContent(targetList.get(j), ""), Toast.LENGTH_LONG);
+                                Log.i("detected_actions", "Taped on " + findContent(targetList.get(j), ""));
 
-                                    if (overallsimilarity < 70) {
-                                        Toast.makeText(getApplicationContext(), "Wrong screen", Toast.LENGTH_LONG).show();
-                                        // if similarity less than 90 then
+                                if (overallsimilarity < 70) {
+                                    Toast.makeText(getApplicationContext(), "Wrong screen", Toast.LENGTH_LONG).show();
+                                        // if similarity less than 70 then
                                         //System.out.println("Wrong tab");
-                                        similarCharacterCount = lcsCount(previousScreenContent, content);
-                                        similarity = similarCharacterCount * 100 / previousScreenContent.length();
-                                        System.out.println("Similarity with previous page = " + similarity + "%\n");
-                                        if (overallsimilarity >= 70) {
-                                            currentNode = getRootInActiveWindow();
-                                            List<AccessibilityNodeInfo> newList = new ArrayList<>();
-                                            newList = findTargetNode(currentNode, x, y);
-                                            //System.out.println(newList.get(j).getText().toString());
-                                            newList.get(j).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                                        } else {
-                                            performGlobalAction(GLOBAL_ACTION_BACK);
-                                        }
-                                        Thread.sleep(3000);
-                                        if (j == 2) {
-                                            Toast.makeText(getApplicationContext(), "Unable to do the action correctly, help us do it", Toast.LENGTH_LONG).show();
-                                            Toast.makeText(getApplicationContext(), "Action hint is " + action.getString("action_hint"), Toast.LENGTH_LONG).show();
-//                                        Toast.makeText(getApplicationContext(),"We are in the wrong page abort, and pls help us go to the correct page", Toast.LENGTH_LONG ).show();
-                                            paused = true;
-                                            currentActionIndex = i + 1;
-                                        }
+                                    similarCharacterCount = lcsCount(previousScreenContent, content);
+                                    similarity = similarCharacterCount * 100 / previousScreenContent.length();
+                                    System.out.println("Similarity with previous page = " + similarity + "%\n");
+                                    if (overallsimilarity >= 70) {
+                                        currentNode = getRootInActiveWindow();
+                                        List<AccessibilityNodeInfo> newList = new ArrayList<>();
+                                        newList = findTargetNode(currentNode, x, y);
+                                        //System.out.println(newList.get(j).getText().toString());
+                                        newList.get(j).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                                     } else {
-                                        break;
-
+                                        performGlobalAction(GLOBAL_ACTION_BACK);
                                     }
-                                }  else{
-                                    Log.i("screenshot", "not screenshot");
+                                    Thread.sleep(3000);
+                                    if (j == 2) {
+                                        Toast.makeText(getApplicationContext(), "Unable to do the action correctly, help us do it", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Action hint is " + action.getString("action_hint"), Toast.LENGTH_LONG).show();
+//                                       Toast.makeText(getApplicationContext(),"We are in the wrong page abort, and pls help us go to the correct page", Toast.LENGTH_LONG ).show();
+                                        paused = true;
+                                        currentActionIndex = i + 1;
+                                    }
+                                }
+                                else {
+                                    break;
                                 }
                             }
-                            if (paused) {
-                                break;
-                            }
+
+                                if (paused) {
+                                    break;
+                                }
+
                             //System.out.println(targetNode.getText().toString());
                             //targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                             //singleTapAt(x, y);

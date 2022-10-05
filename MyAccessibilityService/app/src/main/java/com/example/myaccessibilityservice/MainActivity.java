@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                             state = object.getString("state");
 
                         } catch (Exception e){
-                            Thread.sleep(5000);
+
                             state = object.getString("state");
                         }
 
@@ -381,8 +381,8 @@ public class MainActivity extends AppCompatActivity {
                             Log.i("Json", "state is success, result saved");
                             break;
                         }
-
                         Thread.sleep(30000);
+
                     }
 
                 } catch (Exception e) {
