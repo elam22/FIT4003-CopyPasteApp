@@ -59,8 +59,8 @@
         android:layout_marginTop="167dp"
         android:background="@drawable/default_rounded_button"
         android:fontFamily="@font/opensans_regular"
-        android:onClick="selectVideo"
-        android:text="Upload"
+        android:onClick="buttonHandler"
+        android:text="Select a video"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -126,26 +126,62 @@
             android:id="@+id/text_history"
             android:layout_width="325dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
             android:fontFamily="@font/opensans_semibold"
+            android:paddingBottom="25dp"
             android:text="Shortcut History"
             android:textColor="@color/mint_green_main"
             android:textSize="20sp"
-            tools:ignore="HardcodedText"
-            android:paddingBottom="25dp"
-            android:layout_marginStart="3dp"/>
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="31dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:background="@drawable/default_rounded_button"
+            android:fontFamily="@font/opensans_regular"
+            android:text="Delete"
+            android:textSize='10dp'
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.222"
+            tools:ignore="HardcodedText" />
+
+
+        <Button
+            android:id="@+id/rename_button"
+            android:layout_width="wrap_content"
+            android:layout_height="31dp"
+            android:textSize='10dp'
+            android:layout_alignParentTop="true"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:background="@drawable/default_rounded_button"
+            android:fontFamily="@font/opensans_regular"
+            android:text="Rename"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="90dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.222"
+            tools:ignore="HardcodedText" />
+
 
         <ListView
             android:id="@+id/list_history"
             android:layout_width="match_parent"
-            android:layout_height="369dp"
+            android:layout_height="304dp"
             android:layout_marginStart="5dp"
             android:layout_marginTop="23dp"
             android:paddingBottom="45dp"
-            app:layout_constraintBottom_toBottomOf="@id/text_history">
-
-        </ListView>
+            app:layout_constraintBottom_toBottomOf="@id/text_history"></ListView>
     </RelativeLayout>
-
 
 
 </RelativeLayout>

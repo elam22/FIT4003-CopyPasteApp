@@ -21,10 +21,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -60,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
     String postUrl;
     String getUrl;
     TextView responseText;
+
+
+    int flagSelect = 0;
+    int flagUpload = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -244,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             responseText.setText(responseTxt);
                             Toast.makeText(getApplicationContext(), responseText.getText().toString(), Toast.LENGTH_LONG).show();
-                            checkProgress(null);
+
                         } catch (JSONException | IOException e) {
                             e.printStackTrace();
                         }
@@ -268,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
                 Log.i("Upload", String.valueOf(requestBody.contentType()));
                 postRequest(postUrl, requestBody);
+                flagUpload = 1;
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i("Upload", "failed");
@@ -279,19 +286,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void selectVideo() {
 
-    public void selectVideo(View v) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkPermission()) {
-                pickVideo();
-                uploadVideo();
-            } else {
-                requestPermission();
-            }
-        } else {
+        if (checkPermission()) {
             pickVideo();
-            uploadVideo();
+
+        } else {
+            requestPermission();
         }
+
     }
 
     public void pickVideo() {
@@ -299,7 +302,33 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("video/mp4");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent, REQUEST_CODE);
+        flagSelect = 1;
 
+    }
+
+    public void buttonHandler(View view) throws IOException {
+        if (flagSelect == 0) {
+            selectVideo();
+
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Button uploadButton = (Button) view.findViewById(R.id.upload_button);
+                    uploadButton.setText("Upload");
+                }
+            }, 5000);
+
+        } else {
+            uploadVideo();
+            flagSelect = 0;
+            // only go to progress if the upload is successful.
+            if (flagUpload == 1) {
+                goToProgress();
+                // checkProgress();
+            }
+        }
     }
 
     @Override
@@ -317,6 +346,7 @@ public class MainActivity extends AppCompatActivity {
             EditText imgPath = findViewById(R.id.vidPath);
             imgPath.setText(selectedImagePath);
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+
 
         }
     }
@@ -347,7 +377,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void checkProgress(@Nullable View v) throws IOException {
+    public void goToProgress() {
+        Intent intent = new Intent(this, Progress.class);
+
+        intent.putExtra("getUrl", getUrl);
+        startActivity(intent);
+
+    }
+
+
+    public void checkProgress() throws IOException {
 //        String url_1 = "http://" + ipv4AddressAndPort + "/status/753e71d9-427a-4f50-8527-4fb289b7e42b";
 //        Log.i("Json", getUrl);
 
@@ -357,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    while(true){
+                    while (true) {
                         String result = getRequest(getUrl);
                         JSONObject object = new JSONObject(result);
                         String state = object.getString("state");
@@ -381,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
 
-                        Thread.sleep(30000);
+
                     }
 
                 } catch (Exception e) {
@@ -403,11 +442,13 @@ public class MainActivity extends AppCompatActivity {
 //                Thread.currentThread().interrupt();
 //            }
 //        }
-
     }
 
     public String getRequest(String url) throws IOException {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
+                .build();
+
 //        final JSONObject[] responseResult = new JSONObject[1];
         Request request = new Request.Builder()
                 .url(url)
@@ -431,7 +472,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
         return getResponse.body().string();
 
     }
 }
+
+
