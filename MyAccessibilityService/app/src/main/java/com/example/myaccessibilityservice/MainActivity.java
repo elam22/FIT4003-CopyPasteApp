@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     String selectedImagePath;
     int REQUEST_CODE = 3;
     EditText ipv4AddressView;
-    String ipv4AddressAndPort = "192.168.100.14:5000";
+    String ipv4AddressAndPort = "10.156.115.194:5000";
     RequestBody requestBody;
     String postUrl;
     String getUrl;
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
                 Log.i("Upload", String.valueOf(requestBody.contentType()));
                 postRequest(postUrl, requestBody);
-                flagUpload = 1;
+                flagSelect = 2;
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i("Upload", "failed");
@@ -320,14 +320,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }, 5000);
 
-        } else {
+        } else if (flagSelect == 1){
             uploadVideo();
-            flagSelect = 0;
-            // only go to progress if the upload is successful.
-            if (flagUpload == 1) {
-                goToProgress();
-                // checkProgress();
-            }
+                // only go to progress if the upload is successful.
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Button uploadButton = (Button) view.findViewById(R.id.upload_button);
+                    uploadButton.setText("Show progress");
+                }
+                }, 5000);
+        } else if (flagSelect ==2 ){
+            checkProgress();
         }
     }
 
@@ -377,13 +382,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void goToProgress() {
-        Intent intent = new Intent(this, Progress.class);
 
-        intent.putExtra("getUrl", getUrl);
-        startActivity(intent);
-
-    }
 
 
     public void checkProgress() throws IOException {
@@ -396,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    while (true) {
+                    while(true){
                         String result = getRequest(getUrl);
                         JSONObject object = new JSONObject(result);
                         String state = object.getString("state");
@@ -420,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
 
-
+                        Thread.sleep(30000);
                     }
 
                 } catch (Exception e) {
@@ -442,13 +441,11 @@ public class MainActivity extends AppCompatActivity {
 //                Thread.currentThread().interrupt();
 //            }
 //        }
+
     }
 
     public String getRequest(String url) throws IOException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .retryOnConnectionFailure(true)
-                .build();
-
+        OkHttpClient client = new OkHttpClient();
 //        final JSONObject[] responseResult = new JSONObject[1];
         Request request = new Request.Builder()
                 .url(url)
@@ -472,7 +469,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         return getResponse.body().string();
 
     }

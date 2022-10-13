@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1157701765/MyAccessibilityService.iml" filepath="$PROJECT_DIR$/.idea/modules/1157701765/MyAccessibilityService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.iml" filepath="$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/MyAccessibilityService.app.unitTest.iml" />
+    </modules>
+  </component>
+</project>
