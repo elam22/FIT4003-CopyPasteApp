@@ -3,13 +3,16 @@ package com.example.myaccessibilityservice;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.annotation.SuppressLint;
+import android.app.Instrumentation;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -388,6 +391,31 @@ public class MyAccessibilityService extends AccessibilityService {
 //                            Log.i("tap", String.valueOf(y));
                             longTapAt(x, y);
                             Thread.sleep(5000);
+                        } else if(act_type.equals("TYPE")) {
+                            JSONArray typeActions = action.getJSONArray("actions");
+                            String typeText = action.getString("potential_type");
+
+                            JSONObject typeActionStart = (JSONObject) typeActions.get(0);
+//                            JSONObject typeActionEnd = (JSONObject) typeActions.get(typeActions.length() - 1);
+
+                            JSONObject startTap = (JSONObject) typeActionStart.getJSONArray("taps").get(0);
+//                            JSONObject endTap = (JSONObject) typeActionEnd.getJSONArray("taps").get(0);
+
+                            float xStart = startTap.getInt("x");
+                            float yStart = startTap.getInt("y");
+//                            float xEnd = endTap.getInt("x");
+//                            float yEnd = endTap.getInt("y");
+
+                            xStart = ((xStart/1080)*currentScreenWidth);
+                            yStart = ((yStart/1920)*currentScreenHeight);
+//                            xEnd = ((xEnd/1080)*currentScreenWidth);
+//                            yEnd = ((yEnd/1920)*currentScreenHeight);
+
+                            currentNode = getRootInActiveWindow();
+                            inputTypeText(typeText, Math.round(xStart), Math.round(yStart), currentNode);
+//                            pressEnter();
+
+                            Thread.sleep(1000);
                         }
                     }
                     if(!paused) {
@@ -403,6 +431,67 @@ public class MyAccessibilityService extends AccessibilityService {
 
             }
         });
+    }
+
+    public void inputTypeText(String text, int x, int y, AccessibilityNodeInfo node) {
+        System.out.println("X: " + x + " Y: " + y);
+        System.out.println("Type text: " + text);
+        inputTypeTextAtPosition(text, x, y, node);
+    }
+
+    private void inputTypeTextAtPosition(String text, int x, int y, AccessibilityNodeInfo node) {
+        if (node == null) return;
+
+        if (node.getChildCount() == 0) {
+            Rect buttonRect = new Rect();
+            node.getBoundsInScreen(buttonRect);
+            if (buttonRect.contains(x, y)) {
+                // Maybe we need to think if a large view covers item?
+                try {
+                    node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    Thread.sleep(1000);
+                    setText(text);
+
+                    System.out.println("1º - Node Information: " + node.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Rect buttonRect = new Rect();
+            node.getBoundsInScreen(buttonRect);
+            if (buttonRect.contains(x, y)) {
+                // Maybe we need to think if a large view covers item?
+                System.out.println("2º - Node Information: " + node.toString());
+            }
+            for (int i = 0; i < node.getChildCount(); i++) {
+                inputTypeTextAtPosition(text, x, y, node.getChild(i));
+            }
+        }
+    }
+
+    private void setText(String text) {
+        AccessibilityNodeInfo currentNode = getRootInActiveWindow();
+        AccessibilityNodeInfo focusInput = currentNode.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+        if (focusInput != null) {
+            System.out.println("focus input: " + focusInput.toString());
+            currentNode = focusInput;
+        }
+
+        System.out.println();
+        Bundle arguments = new Bundle();
+        arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+        currentNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+    }
+
+    private void pressEnter() {
+        try {
+            Instrumentation inst = new Instrumentation();
+            inst.sendKeyDownUpSync(KeyEvent.KEYCODE_ENTER);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void singleTapAt(float x, float y) {

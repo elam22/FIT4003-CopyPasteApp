@@ -6,7 +6,6 @@ import difflib
 import requests
 from PIL import Image
 from base64 import b64encode
-from v2s.util.general import JSONFileUtils
 
 
 class TextBoundArray:
@@ -55,6 +54,12 @@ class TextBound:
     def get_center(self):
         return self.center
 
+    def get_bound(self):
+        return {'top_left': self.top_left, 'top_right': self.top_right, 'bottom_right': self.bottom_right, 'bottom_left': self.bottom_left}
+
+    def get_text(self):
+        return self.text
+
     def in_bound(self, coordinate):
         return self.top_left["x"] < coordinate["x"] < self.top_right["x"] \
                and self.top_left["y"] < coordinate["y"] < self.bottom_left["y"]
@@ -65,100 +70,14 @@ class TextBound:
     def to_json(self):
         return json.dumps(self.__dict__)
 
-# class ComplexEncoder(json.JSONEncoder):
-#     def default(self, obj):
-#         if hasattr(obj, 'asJson'):
-#             return obj.asJson()
-#         else:
-#             return json.JSONEncoder.default(self, obj)
-#
-#
-# class JSONFileUtils():
-#     """
-#     Contains methods to read data from json files.
-#
-#     Methods
-#     -------
-#     read_data_from_json(file_path)
-#         Reads data from json file.
-#     output_data_to_json(data, file_path)
-#         Outputs data to json file using ComplexEncoder.
-#     """
-#
-#     @staticmethod
-#     def read_data_from_json(file_path):
-#         """
-#         Reads data from json file.
-#
-#         Parameters
-#         ----------
-#         file_path : string
-#             path to file to read from
-#
-#         Returns
-#         -------
-#         data :  dict
-#             json information
-#         """
-#         file_path = os.path.join(file_path)
-#         file_json = open(file_path, 'r')
-#         data = json.load(file_json)
-#         file_json.close()
-#         return data
-#
-#     @staticmethod
-#     def output_data_to_json(data, file_path):
-#         """
-#         Outputs data to json file using ComplexEncoder.
-#
-#         Parameters
-#         ----------
-#         data :
-#             data to output to json
-#         file_path : string
-#             path to file to output to
-#         """
-#         json_data = json.dumps(data, cls=ComplexEncoder, sort_keys=True)
-#         file = open(file_path, "w+")
-#         file.write(json_data)
-#         file.close()
-
 
 def ocr(img_path):
-    # ocr_result = JSONFileUtils.read_data_from_json("C:/Users/w7947/Desktop/FIT4003-CopyPasteApp/flask_application/asset/test/ocr.json")
     ocr_result = ocr_detection_google(img_path)
     filtered_text = remove_symbol(filter_noise(ocr_result))
     unfiltered_text = unfiltered_screen_ocr(ocr_result)
     text_bounds = text_bound_from_ocr_result(ocr_result)
 
     return {"resulting_screen_ocr": filtered_text, "unfiltered_screen_ocr": unfiltered_text, "text_bounds": text_bounds}
-
-
-def test_ocr(img_path):
-    ocr_result = JSONFileUtils.read_data_from_json("C:/Users/w7947/Desktop/FIT4003-CopyPasteApp/flask_application/asset/test/test_ocr.json")
-    # ocr_result = test_ocr_detection_google(img_path)
-    filtered_text = remove_symbol(filter_noise(ocr_result))
-    unfiltered_text = unfiltered_screen_ocr(ocr_result)
-    text_bounds = text_bound_from_ocr_result(ocr_result)
-
-    return {"resulting_screen_ocr": filtered_text, "unfiltered_screen_ocr": unfiltered_text, "text_bounds": text_bounds}
-
-
-def test_ocr_detection_google(img_path):
-    url = 'https://vision.googleapis.com/v1/images:annotate'
-    api_key = ''  # *** Replace with your own Key ***
-    img_data = google_ocr_make_image_data(img_path)
-    response = requests.post(url,
-                             data=img_data,
-                             params={'key': api_key},
-                             headers={'Content_Type': 'application/json'})
-    if response.json()['responses'] == [{}]:
-        # No Text
-        return None
-    else:
-        # print("output")
-        JSONFileUtils.output_data_to_json(response.json()['responses'][0]['textAnnotations'][1:], "C:/Users/w7947/Desktop/FIT4003-CopyPasteApp/flask_application/asset/test/test_ocr.json")
-        return response.json()['responses'][0]['textAnnotations'][1:]
 
 
 def google_ocr_make_image_data(img_path):
@@ -179,7 +98,7 @@ def google_ocr_make_image_data(img_path):
 
 def ocr_detection_google(img_path):
     url = 'https://vision.googleapis.com/v1/images:annotate'
-    api_key = 'AIzaSyC9Vx_8fQbreU_WpPr39tN2oRxgHY5i5WQ'  # *** Replace with your own Key ***
+    api_key = ''  # *** Replace with your own Key ***
     img_data = google_ocr_make_image_data(img_path)
     response = requests.post(url,
                              data=img_data,
@@ -189,8 +108,6 @@ def ocr_detection_google(img_path):
         # No Text
         return None
     else:
-        # print("output")
-        JSONFileUtils.output_data_to_json(response.json()['responses'][0]['textAnnotations'][1:], "C:/Users/w7947/Desktop/FIT4003-CopyPasteApp/flask_application/asset/test/ocr.json")
         return response.json()['responses'][0]['textAnnotations'][1:]
 
 
@@ -281,7 +198,7 @@ def detect_potential_type_text(type_actions, file_path):
 def generate_mask(target_image):
     width, height = target_image.size
 
-    top_mask = Image.new("RGBA", (width, 200), (255, 255, 255))
+    top_mask = Image.new("RGBA", (width, 50), (255, 255, 255))
     keyboard_mask = Image.new("RGBA", (width, 700), (255, 255, 255))
 
     return {"top_mask": top_mask, "keyboard_mask": keyboard_mask}
@@ -316,20 +233,18 @@ def find_text_by_location(type_actions, type_start, file_path):
 
     masked_type_start_action_hint = type_start['action_hint']
     masked_type_start_ocr = ocr(masked_type_start_screen_path)
-    # masked_type_start_ocr = test_ocr(masked_type_start_screen_path)
     masked_type_start_text_bounds = masked_type_start_ocr["text_bounds"].get_text_bounds()
 
-    type_start_text_bound_center = masked_type_start_text_bounds[0].get_center()
+    type_start_text_bound_center = default_bound_center(masked_type_start_text_bounds)
     for text_bound in masked_type_start_text_bounds:
         if text_bound.text == masked_type_start_action_hint:
             type_start_text_bound_center = text_bound.get_center()
             break
 
     masked_type_end_ocr = ocr(masked_type_end_screen_path)
-    # masked_type_end_ocr = test_ocr(masked_type_end_screen_path)
     masked_type_end_text_bounds = masked_type_end_ocr["text_bounds"].get_text_bounds()
 
-    potential_type = ''
+    potential_type = default_type_text(masked_type_end_text_bounds)
     for text_bound in masked_type_end_text_bounds:
         if text_bound.in_bound(type_start_text_bound_center):
             potential_type = text_bound.text
@@ -337,10 +252,34 @@ def find_text_by_location(type_actions, type_start, file_path):
 
     return potential_type
 
+
+def default_bound_center(text_bounds):
+    default_bound_text = text_bounds[0].get_text()
+    default_center = text_bounds[0].get_center()
+    for text_bound in text_bounds:
+        bound = text_bound.get_bound()
+        if (bound["top_left"]["x"] < 300 and bound["bottom_left"]["x"] < 300) and (
+                bound["top_left"]["y"] < 350 and bound["bottom_left"]["y"] < 350):
+            if len(text_bound.get_text()) > len(default_bound_text):
+                default_bound_text = text_bound.get_text()
+                default_center = text_bound.get_center()
+    return default_center
+
+
+def default_type_text(text_bounds):
+    default_bound_text = text_bounds[0].get_text()
+    for text_bound in text_bounds:
+        bound = text_bound.get_bound()
+        if (bound["top_left"]["x"] < 300 and bound["bottom_left"]["x"] < 300) and (
+                bound["top_left"]["y"] < 350 and bound["bottom_left"]["y"] < 350):
+            if len(text_bound.get_text()) > len(default_bound_text):
+                default_bound_text = text_bound.get_text()
+
+    return default_bound_text
+
+
 def find_text_by_difference(type_start_ocr, type_end_ocr):
     difference = difflib.ndiff(type_start_ocr, type_end_ocr)
-
-    # print(''.join(difference), end='')
 
     text_diffs = []
     type_text = ''
@@ -368,6 +307,8 @@ def find_potential_type(type_by_location, type_by_difference):
     for t in type_by_difference:
         if t == type_by_location:
             return t
+
+    # TODO: Error handling
     return type_by_location
 
 
@@ -396,9 +337,6 @@ def extract_action(incomplete_actions, filepath):
     getAction(taps)
     together = {"act_type": getAction(taps), "frames": screenId, "taps": taps}
     detected_actions.append(together)
-
-    JSONFileUtils.output_data_to_json(detected_actions,
-                                      os.path.join(filepath.rsplit(".", 1)[0], "detected_actions.json"))
 
     actions = []
     for detected_action in detected_actions:
@@ -481,5 +419,4 @@ def disBetweenPoint(x1, y1, x2, y2):
 
 
 if __name__ == "__main__":
-    # ocr_detection_google("C:/Users/w7947/Desktop/FIT4003-CopyPasteApp/flask_application/asset/test/extracted_frames/0001.jpg")
     pass

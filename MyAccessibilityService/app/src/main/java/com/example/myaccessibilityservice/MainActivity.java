@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     String selectedImagePath;
     int REQUEST_CODE = 3;
     EditText ipv4AddressView;
-    String ipv4AddressAndPort = "192.168.20.17:5000";
+    String ipv4AddressAndPort;
     RequestBody requestBody;
     String postUrl;
     String getUrl;
@@ -348,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (state.equals("SUCCESS")) {
                             JSONArray actions = object.getJSONArray("result");
+
                             SharedPreferences sharedPref = getSharedPreferences("ACTIONS", 0);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("ACTION_RESULT", actions.toString());

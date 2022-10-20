@@ -2,7 +2,7 @@ import json
 import os
 import sys
 sys.path.append(os.path.abspath(os.getcwd()).strip('flask_application') + "/python_v2s")
-from v2s.pipeline import PipelineV2S
+from python_v2s.v2s.pipeline import PipelineV2S
 
 def execute_v2s(filepath):
     scene_config = {
@@ -18,8 +18,8 @@ def execute_v2s(filepath):
     # this is the path to use ssd model instead of faster rcnn, replace line 13 with the line below
     # "touch_model": "v2s/phase1/detection/touch_model/my_model/saved_model/",
 
-    # v2s = PipelineV2S(scene_config)
-    # v2s.execute()
+    v2s = PipelineV2S(scene_config)
+    v2s.execute()
     name, extension = os.path.splitext(filepath)
     detected_actions_path = name + '/incomplete_detections.json'
     detected_actions = open(detected_actions_path, 'r')

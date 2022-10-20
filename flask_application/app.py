@@ -1,15 +1,12 @@
 import os
-# import re
-# import difflib
 import timeit
 
 from flask import Flask, flash, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 from celery import Celery
-from v2s_wrapper import execute_v2s
+from flask_application.v2s_wrapper import execute_v2s
 from v2s.util.general import JSONFileUtils
 from result_processing import *
-
 
 UPLOAD_FOLDER = os.getcwd().strip('flask_application') + 'uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'pdf'}
@@ -20,18 +17,13 @@ app.config['CELERY_RESULT_BACKEND'] = "redis://localhost:6379/0"
 app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"
 
 celery = Celery(app.name,
-                broker=app.config['CELERY_BROKER_URL'],
-                result_backend=app.config['CELERY_BROKER_URL'])
+                    broker=app.config['CELERY_BROKER_URL'],
+                    result_backend=app.config['CELERY_BROKER_URL'])
 
 
-# @celery.task(bind=True)
-@app.route('/pv', methods=['GET'])
-def process_video():
-    args = request.args
-    filepath = args.get('filepath')
-    # self.update_state(state='PROCESSING')
-
-    start = timeit.default_timer()
+@celery.task(bind=True)
+def process_video(self, filepath):
+    self.update_state(state='PROCESSING')
 
     detected_actions_json = execute_v2s(filepath)
 
@@ -51,9 +43,6 @@ def process_video():
             coordinate = extracted_actions[i]['taps'][0]
 
             extracted_actions[i]['action_hint'] = get_action_hint(screen_path, coordinate)
-
-    # JSONFileUtils.output_data_to_json(extracted_actions, os.path.join(filepath.rsplit(".", 1)[0], "extracted_actions.json"))
-    # extracted_actions = JSONFileUtils.read_data_from_json(os.path.join(filepath.rsplit(".", 1)[0], "extracted_actions.json"))
 
     # put the resulting screen ocr result
     for i in range(0, len(extracted_actions)):
@@ -83,14 +72,7 @@ def process_video():
         extracted_actions[i]['text_bounds'] = ocr_results["text_bounds"]
         extracted_actions[i]['screen_number'] = screen_number
 
-    # extracted_actions = JSONFileUtils.read_data_from_json(os.path.join(filepath.rsplit(".", 1)[0], "raw_ocr_actions.json"))
-    processed_actions = identify_type(extracted_actions, file_path)
-
-    duration = timeit.default_timer() - start
-    # self.update_state(result=extracted_actions)
-    JSONFileUtils.output_data_to_json({"duartion": duration}, os.path.join(filepath.rsplit(".", 1)[0], "duration.json"))
-
-    for action in processed_actions:
+    for action in extracted_actions:
         if action["act_type"] == "TYPE":
             for type_action in action["actions"]:
                 text_bounds = type_action["text_bounds"]
@@ -99,14 +81,23 @@ def process_video():
             text_bounds = action["text_bounds"]
             action["text_bounds"] = text_bounds.to_json()
 
+    processed_actions = identify_type(extracted_actions, file_path)
+
+    for action in processed_actions:
+        if action["act_type"] == "TYPE":
+            for type_action in action["actions"]:
+                type_action["text_bounds"] = ''
+        else:
+            action["text_bounds"] = ''
+
     JSONFileUtils.output_data_to_json(processed_actions, os.path.join(filepath.rsplit(".", 1)[0], "all_detections.json"))
-    # return extracted_actions
-    return 'OK'
+
+    return extracted_actions
 
 
 def to_json(actions):
     res = {}
-    for action in processed_actions:
+    for action in actions:
         if action["act_type"] == "TYPE":
             for type_action in action["actions"]:
                 text_bounds = type_action["text_bounds"]
@@ -177,4 +168,4 @@ def task_status(task_id):
 
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=5000, debug=True) #CHANGE TO YOUR IPV4 ADDRESS
+    app.run(host="0.0.0.0", port=8080, debug=True)
