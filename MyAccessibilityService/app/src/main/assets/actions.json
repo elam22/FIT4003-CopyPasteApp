@@ -1,1049 +1,765 @@
 [
   {
     "act_type": "CLICK",
+    "action_hint": "FO",
+    "first_frame": 60,
+    "resulting_screen_ocr": "SearchsettingsAppsAssistantrecentappsdefaultappsNotificationsNotificationhistoryconversationsBatteryStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightness",
     "taps": [
       {
-        "x": 343.0,
-        "y": 161.0
-      }
-    ]
-  },
-  {
-    "act_type": "CLICK",
-    "taps": [
-      {
-        "x": 761.0,
-        "y": 1343.0
-      }
-    ]
-  },
-  {
-    "act_type": "CLICK",
-    "taps": [
-      {
-        "x": 929.0,
-        "y": 1183.0
-      }
-    ]
-  },
-  {
-    "act_type": "CLICK",
-    "taps": [
-      {
-        "x": 641.0,
-        "y": 1344.0
-      }
-    ]
-  },
-  {
-    "act_type": "CLICK",
-    "taps": [
-      {
-        "x": 467.0,
-        "y": 354.0
+        "x": 754.0,
+        "y": 1169.0
       }
     ]
   },
   {
     "act_type": "SWIPE",
+    "first_frame": 91,
+    "resulting_screen_ocr": "SearchsettingsStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightnessWallpaperstyleColorsthemediconsappgridAccessibilityDisplayinteractionaudioASecurity",
     "taps": [
       {
-        "x": 363.0,
-        "y": 343.0
+        "x": 603.0,
+        "y": 1251.0
       },
       {
-        "x": 363.0,
-        "y": 343.0
+        "x": 603.0,
+        "y": 1251.0
       },
       {
-        "x": 363.0,
-        "y": 343.0
+        "x": 627.0,
+        "y": 1144.0
       },
       {
-        "x": 363.0,
-        "y": 343.0
+        "x": 627.0,
+        "y": 1144.0
       },
       {
-        "x": 371.0,
-        "y": 358.0
+        "x": 642.0,
+        "y": 885.0
       },
       {
-        "x": 376.0,
-        "y": 366.0
+        "x": 647.0,
+        "y": 745.0
       },
       {
-        "x": 376.0,
-        "y": 366.0
+        "x": 655.0,
+        "y": 664.0
       },
       {
-        "x": 382.0,
-        "y": 375.0
+        "x": 661.0,
+        "y": 644.0
       },
       {
-        "x": 388.0,
-        "y": 391.0
+        "x": 661.0,
+        "y": 644.0
       },
       {
-        "x": 396.0,
-        "y": 402.0
+        "x": 661.0,
+        "y": 641.0
       },
       {
-        "x": 396.0,
-        "y": 402.0
+        "x": 661.0,
+        "y": 640.0
       },
       {
-        "x": 405.0,
-        "y": 418.0
+        "x": 661.0,
+        "y": 641.0
       },
       {
-        "x": 407.0,
-        "y": 429.0
+        "x": 661.0,
+        "y": 641.0
       },
       {
-        "x": 414.0,
-        "y": 443.0
+        "x": 661.0,
+        "y": 641.0
       },
       {
-        "x": 417.0,
-        "y": 448.0
+        "x": 661.0,
+        "y": 641.0
       },
       {
-        "x": 417.0,
-        "y": 448.0
-      },
-      {
-        "x": 425.0,
-        "y": 459.0
-      },
-      {
-        "x": 432.0,
-        "y": 468.0
-      },
-      {
-        "x": 434.0,
-        "y": 474.0
-      },
-      {
-        "x": 434.0,
-        "y": 474.0
-      },
-      {
-        "x": 443.0,
-        "y": 489.0
-      },
-      {
-        "x": 456.0,
-        "y": 504.0
-      }
-    ]
-  },
-  {
-    "act_type": "SWIPE",
-    "taps": [
-      {
-        "x": 446.0,
-        "y": 510.0
-      },
-      {
-        "x": 446.0,
-        "y": 509.0
-      },
-      {
-        "x": 411.0,
-        "y": 490.0
-      },
-      {
-        "x": 388.0,
-        "y": 476.0
-      },
-      {
-        "x": 363.0,
-        "y": 462.0
-      },
-      {
-        "x": 318.0,
-        "y": 434.0
-      },
-      {
-        "x": 318.0,
-        "y": 434.0
-      },
-      {
-        "x": 295.0,
-        "y": 417.0
-      },
-      {
-        "x": 288.0,
-        "y": 416.0
-      },
-      {
-        "x": 263.0,
-        "y": 394.0
-      },
-      {
-        "x": 263.0,
-        "y": 394.0
-      },
-      {
-        "x": 255.0,
-        "y": 384.0
-      },
-      {
-        "x": 242.0,
-        "y": 373.0
-      },
-      {
-        "x": 242.0,
-        "y": 373.0
-      },
-      {
-        "x": 224.0,
-        "y": 353.0
-      },
-      {
-        "x": 224.0,
-        "y": 353.0
-      },
-      {
-        "x": 225.0,
-        "y": 341.0
-      }
-    ]
-  },
-  {
-    "act_type": "SWIPE",
-    "taps": [
-      {
-        "x": 665.0,
-        "y": 437.0
-      },
-      {
-        "x": 662.0,
-        "y": 437.0
-      },
-      {
-        "x": 643.0,
-        "y": 440.0
-      },
-      {
-        "x": 612.0,
-        "y": 440.0
-      },
-      {
-        "x": 612.0,
-        "y": 440.0
-      },
-      {
-        "x": 548.0,
-        "y": 429.0
-      },
-      {
-        "x": 463.0,
-        "y": 425.0
-      },
-      {
-        "x": 437.0,
-        "y": 424.0
-      },
-      {
-        "x": 437.0,
-        "y": 425.0
-      },
-      {
-        "x": 428.0,
-        "y": 422.0
-      },
-      {
-        "x": 401.0,
-        "y": 420.0
-      },
-      {
-        "x": 388.0,
-        "y": 420.0
-      },
-      {
-        "x": 375.0,
-        "y": 425.0
-      },
-      {
-        "x": 375.0,
-        "y": 425.0
-      },
-      {
-        "x": 375.0,
-        "y": 425.0
-      },
-      {
-        "x": 355.0,
-        "y": 432.0
+        "x": 663.0,
+        "y": 642.0
       }
     ]
   },
   {
     "act_type": "CLICK",
+    "action_hint": "1.24",
+    "first_frame": 111,
+    "resulting_screen_ocr": "StorageGBusedSystemFreeupspaceGotoFilesapptomanageandfreeupspaceAppsTrashGBtotalGBMB",
     "taps": [
       {
-        "x": 639.0,
-        "y": 453.0
+        "x": 505.0,
+        "y": 583.0
+      }
+    ]
+  },
+  {
+    "act_type": "CLICK",
+    "action_hint": "K",
+    "first_frame": 170,
+    "resulting_screen_ocr": "SearchsettingsStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightnessWallpaperstyleColorsthemediconsappgridAccessibilityDisplayinteractionaudioASecurity",
+    "taps": [
+      {
+        "x": 103.0,
+        "y": 175.0
+      }
+    ]
+  },
+  {
+    "act_type": "CLICK",
+    "action_hint": "theme",
+    "first_frame": 211,
+    "resulting_screen_ocr": "SearchsettingsStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightnessWallpaperstyleColorsthemediconsappgridAccessibilityDisplayinteractionaudioASecurity",
+    "taps": [
+      {
+        "x": 409.0,
+        "y": 1163.0
       }
     ]
   },
   {
     "act_type": "SWIPE",
+    "first_frame": 228,
+    "resulting_screen_ocr": "SearchsettingsStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightnessWallpaperstyleColorsthemediconsappgridAccessibilityDisplayinteractionaudioASecurity",
     "taps": [
       {
-        "x": 332.0,
-        "y": 1192.0
+        "x": 947.0,
+        "y": 1885.0
       },
       {
-        "x": 332.0,
-        "y": 1192.0
+        "x": 947.0,
+        "y": 1884.0
       },
       {
-        "x": 332.0,
-        "y": 1192.0
+        "x": 920.0,
+        "y": 1880.0
       },
       {
-        "x": 332.0,
-        "y": 1192.0
+        "x": 913.0,
+        "y": 1881.0
       },
       {
-        "x": 438.0,
-        "y": 1463.0
+        "x": 909.0,
+        "y": 1881.0
       },
       {
-        "x": 444.0,
-        "y": 1458.0
+        "x": 907.0,
+        "y": 1881.0
       },
       {
-        "x": 479.0,
-        "y": 1413.0
+        "x": 907.0,
+        "y": 1881.0
       },
       {
-        "x": 497.0,
-        "y": 1389.0
+        "x": 905.0,
+        "y": 1882.0
       },
       {
-        "x": 497.0,
-        "y": 1389.0
+        "x": 904.0,
+        "y": 1882.0
       },
       {
-        "x": 503.0,
-        "y": 1386.0
+        "x": 902.0,
+        "y": 1881.0
       },
       {
-        "x": 507.0,
-        "y": 1378.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 507.0,
-        "y": 1379.0
+        "x": 902.0,
+        "y": 1881.0
       },
       {
-        "x": 507.0,
-        "y": 1379.0
+        "x": 903.0,
+        "y": 1882.0
       },
       {
-        "x": 523.0,
-        "y": 1364.0
+        "x": 903.0,
+        "y": 1882.0
       },
       {
-        "x": 533.0,
-        "y": 1345.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 538.0,
-        "y": 1336.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 538.0,
-        "y": 1336.0
+        "x": 903.0,
+        "y": 1880.0
       },
       {
-        "x": 538.0,
-        "y": 1336.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 538.0,
-        "y": 1336.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 540.0,
-        "y": 1326.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 542.0,
-        "y": 1316.0
+        "x": 903.0,
+        "y": 1880.0
       },
       {
-        "x": 542.0,
-        "y": 1316.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 544.0,
-        "y": 1314.0
+        "x": 903.0,
+        "y": 1880.0
       },
       {
-        "x": 544.0,
-        "y": 1314.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 544.0,
-        "y": 1312.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 544.0,
-        "y": 1307.0
+        "x": 76.0,
+        "y": 135.0
       },
       {
-        "x": 544.0,
-        "y": 1307.0
+        "x": 76.0,
+        "y": 135.0
       },
       {
-        "x": 546.0,
-        "y": 1297.0
+        "x": 76.0,
+        "y": 137.0
       },
       {
-        "x": 553.0,
-        "y": 1281.0
+        "x": 76.0,
+        "y": 137.0
       },
       {
-        "x": 552.0,
-        "y": 1270.0
+        "x": 76.0,
+        "y": 137.0
       },
       {
-        "x": 552.0,
-        "y": 1270.0
+        "x": 75.0,
+        "y": 136.0
       },
       {
-        "x": 552.0,
-        "y": 1270.0
+        "x": 75.0,
+        "y": 136.0
       },
       {
-        "x": 552.0,
-        "y": 1270.0
+        "x": 903.0,
+        "y": 1881.0
       },
       {
-        "x": 521.0,
-        "y": 691.0
+        "x": 904.0,
+        "y": 1881.0
       },
       {
-        "x": 521.0,
-        "y": 691.0
+        "x": 931.0,
+        "y": 1879.0
+      }
+    ]
+  },
+  {
+    "act_type": "SWIPE",
+    "first_frame": 278,
+    "resulting_screen_ocr": "SearchsettingsWallpaperstyleColorsthemediconsappgridAccessibilityDisplayinteractionaudioSecurityScreenlockFindMyDeviceappsecurityPrivacyPermissionsaccountactivitypersonaldataLocationOnappshaveaccesstolocationSafetyemergencyEmergencySOSmedicalinfoalerts",
+    "taps": [
+      {
+        "x": 537.0,
+        "y": 1334.0
       },
       {
-        "x": 521.0,
-        "y": 691.0
+        "x": 537.0,
+        "y": 1334.0
       },
       {
-        "x": 520.0,
-        "y": 694.0
+        "x": 549.0,
+        "y": 1253.0
       },
       {
-        "x": 523.0,
-        "y": 711.0
-      },
-      {
-        "x": 524.0,
-        "y": 719.0
-      },
-      {
-        "x": 528.0,
-        "y": 728.0
-      },
-      {
-        "x": 528.0,
-        "y": 728.0
-      },
-      {
-        "x": 531.0,
-        "y": 737.0
-      },
-      {
-        "x": 534.0,
-        "y": 742.0
-      },
-      {
-        "x": 534.0,
-        "y": 742.0
-      },
-      {
-        "x": 538.0,
-        "y": 756.0
-      },
-      {
-        "x": 538.0,
-        "y": 756.0
-      },
-      {
-        "x": 542.0,
-        "y": 766.0
-      },
-      {
-        "x": 543.0,
-        "y": 766.0
-      },
-      {
-        "x": 548.0,
-        "y": 782.0
-      },
-      {
-        "x": 548.0,
-        "y": 782.0
-      },
-      {
-        "x": 554.0,
-        "y": 796.0
-      },
-      {
-        "x": 553.0,
-        "y": 794.0
+        "x": 549.0,
+        "y": 989.0
       },
       {
         "x": 563.0,
-        "y": 812.0
+        "y": 715.0
       },
       {
-        "x": 563.0,
-        "y": 814.0
-      },
-      {
-        "x": 563.0,
-        "y": 814.0
-      },
-      {
-        "x": 565.0,
-        "y": 814.0
-      },
-      {
-        "x": 565.0,
-        "y": 817.0
-      },
-      {
-        "x": 571.0,
-        "y": 822.0
-      },
-      {
-        "x": 571.0,
-        "y": 822.0
-      },
-      {
-        "x": 571.0,
-        "y": 822.0
-      },
-      {
-        "x": 575.0,
-        "y": 824.0
-      },
-      {
-        "x": 575.0,
-        "y": 824.0
+        "x": 578.0,
+        "y": 634.0
       },
       {
         "x": 577.0,
-        "y": 824.0
+        "y": 634.0
       },
       {
-        "x": 471.0,
-        "y": 1084.0
+        "x": 593.0,
+        "y": 576.0
       },
       {
-        "x": 471.0,
-        "y": 1084.0
+        "x": 602.0,
+        "y": 546.0
       },
       {
-        "x": 463.0,
-        "y": 1084.0
+        "x": 604.0,
+        "y": 540.0
+      },
+      {
+        "x": 604.0,
+        "y": 541.0
+      },
+      {
+        "x": 604.0,
+        "y": 540.0
+      },
+      {
+        "x": 604.0,
+        "y": 540.0
+      },
+      {
+        "x": 604.0,
+        "y": 541.0
+      },
+      {
+        "x": 605.0,
+        "y": 540.0
+      },
+      {
+        "x": 605.0,
+        "y": 541.0
+      },
+      {
+        "x": 605.0,
+        "y": 541.0
+      },
+      {
+        "x": 607.0,
+        "y": 545.0
+      }
+    ]
+  },
+  {
+    "act_type": "CLICK",
+    "action_hint": "interaction",
+    "first_frame": 302,
+    "resulting_screen_ocr": "AccessibilityDisplayADisplaysizeandtextColorandmotionMagnificationOffInteractioncontrolsVibrationhapticsOnTimingcontrols",
+    "taps": [
+      {
+        "x": 407.0,
+        "y": 853.0
+      }
+    ]
+  },
+  {
+    "act_type": "CLICK",
+    "action_hint": "K",
+    "first_frame": 346,
+    "resulting_screen_ocr": "SearchsettingsAccessibilityAWallpaperstyleColorsthemediconsappgridODisplayinteractionaudioSecurityScreenlockFindMyDeviceappsecurityPrivacyPermissionsaccountactivitypersonaldataLocationOnappshaveaccesstolocationSafetyemergencyEmergencySOSmedicalinfoalerts",
+    "taps": [
+      {
+        "x": 76.0,
+        "y": 183.0
+      }
+    ]
+  },
+  {
+    "act_type": "SWIPE",
+    "first_frame": 366,
+    "resulting_screen_ocr": "SearchsettingsStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightnessWallpaperstyleColorsthemediconsappgridAccessibilityDisplayinteractionaudioASecurity",
+    "taps": [
+      {
+        "x": 483.0,
+        "y": 594.0
+      },
+      {
+        "x": 467.0,
+        "y": 795.0
+      },
+      {
+        "x": 461.0,
+        "y": 1067.0
+      },
+      {
+        "x": 461.0,
+        "y": 1067.0
+      },
+      {
+        "x": 458.0,
+        "y": 1310.0
       },
       {
         "x": 449.0,
-        "y": 1081.0
+        "y": 1423.0
+      },
+      {
+        "x": 446.0,
+        "y": 1477.0
+      },
+      {
+        "x": 452.0,
+        "y": 1506.0
+      },
+      {
+        "x": 452.0,
+        "y": 1506.0
+      },
+      {
+        "x": 452.0,
+        "y": 1506.0
+      },
+      {
+        "x": 452.0,
+        "y": 1506.0
+      },
+      {
+        "x": 452.0,
+        "y": 1506.0
+      },
+      {
+        "x": 452.0,
+        "y": 1507.0
+      },
+      {
+        "x": 452.0,
+        "y": 1507.0
+      },
+      {
+        "x": 452.0,
+        "y": 1506.0
       }
     ]
   },
   {
     "act_type": "SWIPE",
+    "first_frame": 387,
+    "resulting_screen_ocr": "SearchsettingsAppsAssistantrecentappsdefaultappsNotificationsNotificationhistoryconversationsBatteryStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturbDisplayDarkthemefontsizebrightness",
     "taps": [
       {
-        "x": 597.0,
-        "y": 501.0
+        "x": 480.0,
+        "y": 756.0
       },
       {
-        "x": 578.0,
-        "y": 526.0
+        "x": 477.0,
+        "y": 824.0
       },
       {
-        "x": 578.0,
-        "y": 526.0
+        "x": 477.0,
+        "y": 824.0
       },
       {
-        "x": 573.0,
-        "y": 527.0
+        "x": 482.0,
+        "y": 1025.0
       },
       {
-        "x": 568.0,
-        "y": 538.0
+        "x": 489.0,
+        "y": 1226.0
       },
       {
-        "x": 568.0,
-        "y": 538.0
+        "x": 495.0,
+        "y": 1403.0
       },
       {
-        "x": 568.0,
-        "y": 538.0
+        "x": 493.0,
+        "y": 1415.0
       },
       {
-        "x": 554.0,
-        "y": 553.0
+        "x": 492.0,
+        "y": 1415.0
       },
       {
-        "x": 542.0,
-        "y": 572.0
+        "x": 489.0,
+        "y": 1410.0
       },
       {
-        "x": 537.0,
-        "y": 581.0
+        "x": 489.0,
+        "y": 1410.0
       },
       {
-        "x": 537.0,
-        "y": 581.0
+        "x": 488.0,
+        "y": 1408.0
       },
       {
-        "x": 537.0,
-        "y": 581.0
+        "x": 488.0,
+        "y": 1408.0
       },
       {
-        "x": 538.0,
-        "y": 581.0
+        "x": 488.0,
+        "y": 1408.0
       },
       {
-        "x": 536.0,
-        "y": 588.0
+        "x": 488.0,
+        "y": 1408.0
       },
       {
-        "x": 533.0,
-        "y": 599.0
+        "x": 488.0,
+        "y": 1405.0
+      }
+    ]
+  },
+  {
+    "act_type": "SWIPE",
+    "first_frame": 421,
+    "resulting_screen_ocr": "SearchsettingsLooConnecteddevicesBluetoothpairingAppsAssistantrecentappsdefaultappsNotificationsNotificationhistoryconversationsBatteryStorageusedGBfreeSoundvibrationVolumehapticsDoNotDisturb",
+    "taps": [
+      {
+        "x": 410.0,
+        "y": 665.0
       },
       {
-        "x": 533.0,
-        "y": 599.0
+        "x": 411.0,
+        "y": 671.0
       },
       {
-        "x": 531.0,
-        "y": 601.0
+        "x": 406.0,
+        "y": 765.0
       },
       {
-        "x": 531.0,
-        "y": 601.0
+        "x": 406.0,
+        "y": 765.0
       },
       {
-        "x": 531.0,
-        "y": 603.0
+        "x": 412.0,
+        "y": 948.0
       },
       {
-        "x": 531.0,
-        "y": 609.0
+        "x": 414.0,
+        "y": 1012.0
       },
       {
-        "x": 531.0,
-        "y": 609.0
+        "x": 413.0,
+        "y": 1013.0
       },
       {
-        "x": 528.0,
-        "y": 620.0
+        "x": 413.0,
+        "y": 1013.0
       },
       {
-        "x": 524.0,
-        "y": 635.0
+        "x": 413.0,
+        "y": 1013.0
       },
       {
-        "x": 525.0,
-        "y": 646.0
+        "x": 413.0,
+        "y": 1013.0
       },
       {
-        "x": 525.0,
-        "y": 646.0
+        "x": 413.0,
+        "y": 1013.0
       },
       {
-        "x": 525.0,
-        "y": 646.0
+        "x": 413.0,
+        "y": 1012.0
       },
       {
-        "x": 525.0,
-        "y": 646.0
+        "x": 414.0,
+        "y": 1015.0
       },
       {
-        "x": 556.0,
-        "y": 1228.0
+        "x": 414.0,
+        "y": 1015.0
       },
       {
-        "x": 556.0,
-        "y": 1228.0
+        "x": 411.0,
+        "y": 1014.0
+      }
+    ]
+  },
+  {
+    "act_type": "SWIPE",
+    "first_frame": 453,
+    "resulting_screen_ocr": "SettingsSearchsettingsLooNetworkinternetMobileWiFihotspotConnecteddevicesBluetoothpairingAppsAssistantrecentappsdefaultappsNotificationsNotificationhistoryconversationsBattery",
+    "taps": [
+      {
+        "x": 473.0,
+        "y": 492.0
       },
       {
-        "x": 556.0,
-        "y": 1228.0
+        "x": 473.0,
+        "y": 492.0
       },
       {
-        "x": 555.0,
-        "y": 1223.0
+        "x": 464.0,
+        "y": 507.0
       },
       {
-        "x": 553.0,
-        "y": 1205.0
+        "x": 462.0,
+        "y": 556.0
       },
       {
-        "x": 551.0,
-        "y": 1198.0
+        "x": 461.0,
+        "y": 662.0
       },
       {
-        "x": 547.0,
-        "y": 1189.0
+        "x": 461.0,
+        "y": 796.0
       },
       {
-        "x": 547.0,
-        "y": 1189.0
+        "x": 461.0,
+        "y": 796.0
       },
       {
-        "x": 544.0,
-        "y": 1180.0
+        "x": 461.0,
+        "y": 975.0
       },
       {
-        "x": 542.0,
-        "y": 1174.0
+        "x": 461.0,
+        "y": 1001.0
       },
       {
-        "x": 543.0,
-        "y": 1174.0
+        "x": 461.0,
+        "y": 1001.0
       },
       {
-        "x": 538.0,
-        "y": 1159.0
+        "x": 461.0,
+        "y": 1002.0
       },
       {
-        "x": 538.0,
-        "y": 1159.0
+        "x": 461.0,
+        "y": 1002.0
       },
       {
-        "x": 533.0,
-        "y": 1151.0
+        "x": 460.0,
+        "y": 1000.0
       },
       {
-        "x": 533.0,
-        "y": 1151.0
+        "x": 460.0,
+        "y": 999.0
       },
       {
-        "x": 527.0,
-        "y": 1135.0
+        "x": 460.0,
+        "y": 999.0
       },
       {
-        "x": 527.0,
-        "y": 1135.0
+        "x": 461.0,
+        "y": 1004.0
       },
       {
-        "x": 523.0,
-        "y": 1122.0
+        "x": 461.0,
+        "y": 1004.0
       },
       {
-        "x": 523.0,
-        "y": 1122.0
-      },
+        "x": 461.0,
+        "y": 1003.0
+      }
+    ]
+  },
+  {
+    "act_type": "CLICK",
+    "action_hint": "Connected",
+    "first_frame": 488,
+    "resulting_screen_ocr": "PairnewdeviceConnecteddevicesSaveddevicesSeeallConnectionpreferencesBluetoothAndroidAutoVisibleassdkgphonearmtootherdevices",
+    "taps": [
       {
-        "x": 516.0,
-        "y": 1106.0
-      },
+        "x": 444.0,
+        "y": 1115.0
+      }
+    ]
+  },
+  {
+    "act_type": "SWIPE",
+    "first_frame": 517,
+    "resulting_screen_ocr": "PairnewdeviceConnecteddevicesSaveddevicesSeeallConnectionpreferencesBluetoothAndroidAutoVisibleassdkgphonearmtootherdevices",
+    "taps": [
       {
-        "x": 513.0,
-        "y": 1105.0
-      },
-      {
-        "x": 513.0,
-        "y": 1105.0
-      },
-      {
-        "x": 512.0,
-        "y": 1104.0
+        "x": 506.0,
+        "y": 1515.0
       },
       {
         "x": 510.0,
-        "y": 1099.0
+        "y": 1500.0
       },
       {
-        "x": 503.0,
-        "y": 1094.0
+        "x": 510.0,
+        "y": 1500.0
       },
       {
-        "x": 503.0,
-        "y": 1094.0
+        "x": 512.0,
+        "y": 1482.0
       },
       {
-        "x": 503.0,
-        "y": 1094.0
+        "x": 522.0,
+        "y": 1337.0
       },
       {
-        "x": 500.0,
-        "y": 1094.0
+        "x": 526.0,
+        "y": 1277.0
       },
       {
-        "x": 500.0,
-        "y": 1094.0
+        "x": 532.0,
+        "y": 1130.0
       },
       {
-        "x": 497.0,
-        "y": 1094.0
+        "x": 532.0,
+        "y": 1130.0
       },
       {
-        "x": 605.0,
-        "y": 829.0
+        "x": 532.0,
+        "y": 1130.0
       },
       {
-        "x": 605.0,
-        "y": 829.0
+        "x": 537.0,
+        "y": 996.0
       },
       {
-        "x": 613.0,
-        "y": 833.0
+        "x": 540.0,
+        "y": 967.0
       },
       {
-        "x": 628.0,
-        "y": 836.0
+        "x": 547.0,
+        "y": 848.0
+      },
+      {
+        "x": 547.0,
+        "y": 849.0
+      },
+      {
+        "x": 557.0,
+        "y": 774.0
+      },
+      {
+        "x": 560.0,
+        "y": 746.0
+      },
+      {
+        "x": 560.0,
+        "y": 701.0
+      },
+      {
+        "x": 555.0,
+        "y": 676.0
+      },
+      {
+        "x": 555.0,
+        "y": 676.0
+      },
+      {
+        "x": 555.0,
+        "y": 676.0
+      },
+      {
+        "x": 555.0,
+        "y": 675.0
+      },
+      {
+        "x": 554.0,
+        "y": 672.0
       }
     ]
   },
   {
     "act_type": "CLICK",
+    "action_hint": "K",
+    "first_frame": 551,
+    "resulting_screen_ocr": "SettingsSearchsettingsLooNetworkinternetMobileWiFihotspotConnecteddevicesBluetoothpairingAppsAssistantrecentappsdefaultappsNotificationsNotificationhistoryconversationsBattery",
     "taps": [
       {
-        "x": 568.0,
-        "y": 745.0
-      }
-    ]
-  },
-  {
-    "act_type": "CLICK",
-    "taps": [
-      {
-        "x": 571.0,
-        "y": 1191.0
-      }
-    ]
-  },
-  {
-    "act_type": "SWIPE",
-    "taps": [
-      {
-        "x": 893.0,
-        "y": 376.0
-      },
-      {
-        "x": 893.0,
-        "y": 376.0
-      },
-      {
-        "x": 815.0,
-        "y": 387.0
-      },
-      {
-        "x": 753.0,
-        "y": 393.0
-      },
-      {
-        "x": 695.0,
-        "y": 397.0
-      },
-      {
-        "x": 695.0,
-        "y": 397.0
-      },
-      {
-        "x": 692.0,
-        "y": 397.0
-      },
-      {
-        "x": 672.0,
-        "y": 398.0
-      },
-      {
-        "x": 649.0,
-        "y": 401.0
-      },
-      {
-        "x": 555.0,
-        "y": 406.0
-      },
-      {
-        "x": 555.0,
-        "y": 406.0
-      },
-      {
-        "x": 524.0,
-        "y": 407.0
-      },
-      {
-        "x": 476.0,
-        "y": 406.0
-      },
-      {
-        "x": 468.0,
-        "y": 407.0
-      },
-      {
-        "x": 403.0,
-        "y": 406.0
-      },
-      {
-        "x": 403.0,
-        "y": 406.0
-      },
-      {
-        "x": 350.0,
-        "y": 404.0
-      }
-    ]
-  },
-  {
-    "act_type": "SWIPE",
-    "taps": [
-      {
-        "x": 743.0,
-        "y": 397.0
-      },
-      {
-        "x": 725.0,
-        "y": 401.0
-      },
-      {
-        "x": 664.0,
-        "y": 414.0
-      },
-      {
-        "x": 503.0,
-        "y": 434.0
-      },
-      {
-        "x": 501.0,
-        "y": 434.0
-      },
-      {
-        "x": 501.0,
-        "y": 434.0
-      },
-      {
-        "x": 500.0,
-        "y": 434.0
-      },
-      {
-        "x": 346.0,
-        "y": 445.0
-      },
-      {
-        "x": 321.0,
-        "y": 445.0
-      },
-      {
-        "x": 321.0,
-        "y": 445.0
-      },
-      {
-        "x": 277.0,
-        "y": 447.0
-      },
-      {
-        "x": 267.0,
-        "y": 447.0
-      },
-      {
-        "x": 214.0,
-        "y": 449.0
-      },
-      {
-        "x": 204.0,
-        "y": 449.0
-      },
-      {
-        "x": 178.0,
-        "y": 449.0
-      },
-      {
-        "x": 178.0,
-        "y": 449.0
-      },
-      {
-        "x": 169.0,
-        "y": 449.0
-      },
-      {
-        "x": 152.0,
-        "y": 449.0
-      }
-    ]
-  },
-  {
-    "act_type": "SWIPE",
-    "taps": [
-      {
-        "x": 671.0,
-        "y": 399.0
-      },
-      {
-        "x": 672.0,
-        "y": 399.0
-      },
-      {
-        "x": 672.0,
-        "y": 399.0
-      },
-      {
-        "x": 625.0,
-        "y": 407.0
-      },
-      {
-        "x": 580.0,
-        "y": 416.0
-      },
-      {
-        "x": 577.0,
-        "y": 416.0
-      },
-      {
-        "x": 475.0,
-        "y": 420.0
-      },
-      {
-        "x": 475.0,
-        "y": 420.0
-      },
-      {
-        "x": 421.0,
-        "y": 426.0
-      },
-      {
-        "x": 419.0,
-        "y": 426.0
-      },
-      {
-        "x": 342.0,
-        "y": 434.0
-      },
-      {
-        "x": 321.0,
-        "y": 435.0
-      },
-      {
-        "x": 322.0,
-        "y": 435.0
-      },
-      {
-        "x": 273.0,
-        "y": 435.0
-      },
-      {
-        "x": 263.0,
-        "y": 435.0
-      },
-      {
-        "x": 219.0,
-        "y": 434.0
+        "x": 86.0,
+        "y": 154.0
       }
     ]
   }

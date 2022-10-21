@@ -1,20 +1,22 @@
 # touch_detection.py
 import datetime
 import glob
-import json
 import logging
+import ntpath
 import os
-import subprocess as sp
 import sys
 from abc import ABC, abstractmethod
 
-import ntpath
 import numpy as np
 import tensorflow as tf
 from PIL import Image, ImageFile
-
-from v2s.util.general import ComplexEncoder, ImageUtils, ProgressBar
+from v2s.util.general import ImageUtils, ProgressBar
 from v2s.util.screen import Frame, ScreenTap
+
+from tflite_support.task import vision
+from tflite_support.task import core
+from tflite_support.task import processor
+
 
 # object detection will only be recognized if it has been added to the path
 OB_DET_PATH = os.path.join("phase1", "detection", "object_detection") + os.sep
@@ -264,6 +266,54 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
             end_detection_time = datetime.datetime.now().replace(microsecond=0)
             self.set_detection_time(end_detection_time - start_detection_time)
             logging.info("Touch detection process took: " + str(self.detection_time))
+
+    def execute_detection_tfl(self):
+        """
+        Executes touch detection on extracted frames located at frames_path.
+        """
+
+        video_dir, video_file = os.path.split(self.video_path)
+        video_name, video_extension = os.path.splitext(video_file)
+        extracted_frames_dir_path = os.path.join(video_dir, video_name,
+                                                 "extracted_frames")
+
+
+        # sort extracted frames so detections occur in a predictable order
+        extracted_frames = glob.glob(os.path.join(extracted_frames_dir_path, '*'))
+        extracted_frames.sort()
+
+        detection_output_path = os.path.join(video_dir, video_name,
+                                             "detected_frames")
+        # verify detection out path exists
+        if not os.path.exists(detection_output_path):
+            os.mkdir(detection_output_path)
+
+
+
+        logging.info('Detecting touches for video: [{}]'.format(os.path.split(self.video_path)[1]))
+
+        # Initialization
+        model_path = "/Users/yinghaoma/Desktop/ConvertModel/tflite_model/model-export_iod_tflite-tf_lite_indicator_20221003125826-2022-10-04T04_57_42.502381Z_model.tflite"
+        base_options = core.BaseOptions(file_name=model_path)
+        detection_options = processor.DetectionOptions(max_results=1)
+        options = vision.ObjectDetectorOptions(base_options=base_options, detection_options=detection_options)
+        detector = vision.ObjectDetector.create_from_options(options)
+
+        start_detection_time = datetime.datetime.now().replace(microsecond=0)
+
+        # begin a tf session to begin detecting touches
+
+        for image_path in ProgressBar.display(extracted_frames, "Computing: ", 40):
+
+
+                image = vision.TensorImage.create_from_file(image_path)
+                detection_result = detector.detect(image)
+                if detection_result.detections[0].categories[0].score > 0.5:
+                    print(detection_result)
+
+        end_detection_time = datetime.datetime.now().replace(microsecond=0)
+        self.set_detection_time(end_detection_time - start_detection_time)
+        logging.info("Touch detection process took: " + str(self.detection_time))
 
     def execute_detection_2(self):
         """

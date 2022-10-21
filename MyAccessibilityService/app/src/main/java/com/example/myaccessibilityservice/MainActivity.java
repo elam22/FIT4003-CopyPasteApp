@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     String selectedImagePath;
     int REQUEST_CODE = 3;
     EditText ipv4AddressView;
-    String ipv4AddressAndPort = "192.168.20.17:5000";
+    String ipv4AddressAndPort = "118.138.31.50:5000";
     RequestBody requestBody;
     String postUrl;
     String getUrl;

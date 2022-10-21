@@ -139,4 +139,4 @@ def task_status(task_id):
 
 
 if __name__ == '__main__':
-    app.run(host="192.168.20.17", port=5000, debug=True) #CHANGE TO YOUR IPV4 ADDRESS
+    app.run(host="118.138.31.50", port=5000, debug=True) #CHANGE TO YOUR IPV4 ADDRESS
