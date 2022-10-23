@@ -87,5 +87,16 @@ Only set up if emulator is needed.
 * Network Address: Previous issues running ```flask run``` on ipv4 local network. Current Fix: hardcoding ipv4 address in app.py and running ```python3 app.py```
 * Update State for Extracted Actions: Bug when trying to update state with extracted actions in ```app.py```. Current Fix: Comment out update line. Click 'Check Progress' button to see when the application load is successful. 
 
-
+### How to run Tensorflow Lite Object detection Model
+1. The normal ```pip install tflite-support``` will not work in most machines due to the tflite-support team changed they way they release
+2. We need to use ```Bazel```, this is the website```https://bazel.build/```
+3. The basic idea is to build your own ```wheel``` file which only works in your local machine
+4. First you need to clone the git repo ```https://github.com/tensorflow/tflite-support``` into a folder
+5. Once you installed the ```Bazel```, you can use the following script within the folder of the ```tflite-support```
+```bazel build -c opt tensorflow_lite_support/tools/pip_package:build_pip_package```
+Once the build is finished, you can ```cd``` to where the file ```bazel-bin``` located.
+Then you can run this script to produce the ```wheel``` file 
+```./bazel-bin/tensorflow_lite_support/tools/pip_package/build_pip_package --dst wheels --nightly_flag```
+6. Copy and paste the ```wheel``` file to the folder where the CopyPasteApp is.
+7. Use ```pip install``` to install the wheels file
 

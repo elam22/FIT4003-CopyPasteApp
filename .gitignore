@@ -4,3 +4,5 @@
 *.pyc
 *.pb
 .idea
+python_v2s/v2s/phase1/detection/opacity_model/opacity_model/model-saved-alex8-tuned.h5
+python_v2s/v2s/phase1/detection/opacity_model/model-saved-alex8-tuned.tflite
