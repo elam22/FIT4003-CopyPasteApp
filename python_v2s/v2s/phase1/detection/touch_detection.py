@@ -17,7 +17,6 @@ from tflite_support.task import vision
 from tflite_support.task import core
 from tflite_support.task import processor
 
-
 # object detection will only be recognized if it has been added to the path
 OB_DET_PATH = os.path.join("phase1", "detection", "object_detection") + os.sep
 sys.path.append(OB_DET_PATH)
@@ -25,6 +24,7 @@ sys.path.append(OB_DET_PATH)
 from .object_detection.utils import visualization_utils as vis_util
 from .object_detection.utils.label_map_util import (
     convert_label_map_to_categories, create_category_index, load_labelmap)
+
 
 class AbstractTouchDetector(ABC):
     """
@@ -79,6 +79,7 @@ class AbstractTouchDetector(ABC):
         """
         self.detection_time = time
 
+
 class TouchDetectorFRCNN(AbstractTouchDetector):
     """
     Touch detector for V2S using a Faster-RCNN technique. Requires model to 
@@ -126,7 +127,7 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
         Changes touch detections to specified value.
     """
 
-    def __init__(self,  video_path=None, model=None, labelmap=None, 
+    def __init__(self, video_path=None, model=None, labelmap=None,
                  num_classes=1):
         """
         Parameters
@@ -164,29 +165,28 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
         # load and get information from labelmap
         label_map = load_labelmap(self.labelmap_path)
         categories = convert_label_map_to_categories(label_map,
-                     max_num_classes=self.num_classes, use_display_name=True)
+                                                     max_num_classes=self.num_classes, use_display_name=True)
         category_index = create_category_index(categories)
-        
+
         video_dir, video_file = os.path.split(self.video_path)
         video_name, video_extension = os.path.splitext(video_file)
-        extracted_frames_dir_path = os.path.join(video_dir, video_name , 
+        extracted_frames_dir_path = os.path.join(video_dir, video_name,
                                                  "extracted_frames")
 
         # sort extracted frames so detections occur in a predictable order
         extracted_frames = glob.glob(os.path.join(extracted_frames_dir_path, '*'))
         extracted_frames.sort()
 
-        detection_output_path = os.path.join(video_dir, video_name, 
+        detection_output_path = os.path.join(video_dir, video_name,
                                              "detected_frames")
         # verify detection out path exists
         if not os.path.exists(detection_output_path):
             os.mkdir(detection_output_path)
 
-        
         logging.info('Detecting touches for video: [{}]'.format(os.path.split(self.video_path)[1]))
 
-        config =tf.compat.v1.ConfigProto(inter_op_parallelism_threads=4,
-                            allow_soft_placement=True)
+        config = tf.compat.v1.ConfigProto(inter_op_parallelism_threads=4,
+                                          allow_soft_placement=True)
 
         start_detection_time = datetime.datetime.now().replace(microsecond=0)
 
@@ -261,7 +261,8 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
                     # Don't remove, fixes weird error: https://stackoverflow.com/questions/19600147/sorl-thumbnail-encoder-error-2-when-writing-image-file/41018959#41018959
                     ImageFile.MAXBLOCK = im_width * im_height
                     ImageUtils.save_image_array_as_jpg(image_np,
-                                            os.path.join(detection_output_path, 'bbox-' + base_name + file_extension))
+                                                       os.path.join(detection_output_path,
+                                                                    'bbox-' + base_name + file_extension))
 
             end_detection_time = datetime.datetime.now().replace(microsecond=0)
             self.set_detection_time(end_detection_time - start_detection_time)
@@ -277,7 +278,6 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
         extracted_frames_dir_path = os.path.join(video_dir, video_name,
                                                  "extracted_frames")
 
-
         # sort extracted frames so detections occur in a predictable order
         extracted_frames = glob.glob(os.path.join(extracted_frames_dir_path, '*'))
         extracted_frames.sort()
@@ -287,8 +287,6 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
         # verify detection out path exists
         if not os.path.exists(detection_output_path):
             os.mkdir(detection_output_path)
-
-
 
         logging.info('Detecting touches for video: [{}]'.format(os.path.split(self.video_path)[1]))
 
@@ -303,13 +301,16 @@ class TouchDetectorFRCNN(AbstractTouchDetector):
 
         # begin a tf session to begin detecting touches
 
+
         for image_path in ProgressBar.display(extracted_frames, "Computing: ", 40):
+            base_name = ntpath.basename(image_path)
+            base_name, file_extension = os.path.splitext(base_name)
 
-
-                image = vision.TensorImage.create_from_file(image_path)
-                detection_result = detector.detect(image)
-                if detection_result.detections[0].categories[0].score > 0.5:
-                    print(detection_result)
+            detection = Frame(int(base_name))
+            image = vision.TensorImage.create_from_file(image_path)
+            detection_result = detector.detect(image)
+            if detection_result.detections[0].categories[0].score > 0.5:
+                detection.add_tap(ScreenTap(detection_result.detections[0].bounding_box.origin_x, detection_result.detections[0].bounding_box.origin_origin_y, float(detection_result.detections[0].categories[0].score)))
 
         end_detection_time = datetime.datetime.now().replace(microsecond=0)
         self.set_detection_time(end_detection_time - start_detection_time)
