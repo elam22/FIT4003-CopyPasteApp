@@ -93,7 +93,7 @@ Only set up if emulator is needed.
 3. The basic idea is to build your own ```wheel``` file which only works in your local machine
 4. First you need to clone the git repo ```https://github.com/tensorflow/tflite-support``` into a folder
 5. Once you installed the ```Bazel```, you can use the following script within the folder of the ```tflite-support```
-```bazel build -c opt tensorflow_lite_support/tools/pip_package:build_pip_package```
+This is the script ```bazel build -c opt tensorflow_lite_support/tools/pip_package:build_pip_package```
 Once the build is finished, you can ```cd``` to where the file ```bazel-bin``` located.
 Then you can run this script to produce the ```wheel``` file 
 ```./bazel-bin/tensorflow_lite_support/tools/pip_package/build_pip_package --dst wheels --nightly_flag```
